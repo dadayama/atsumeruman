@@ -20,3 +20,5 @@ ignorePatterns:
 plugins:
   - '@typescript-eslint'
   - import
+rules:
+  require-jsdoc: 0

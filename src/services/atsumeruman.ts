@@ -1,5 +1,6 @@
 import { WebClient, LogLevel } from '@slack/web-api'
 import { Members, Args as MembersArgs } from '../entities/members'
+import { MembersFactory } from './members-factory'
 
 type Params = { token: string; logLevel?: LogLevel } | { client: WebClient }
 
@@ -53,15 +54,8 @@ export class Atsumeruman {
 
   async fetchActiveSlackMembers(): Promise<Members> {
     try {
-      const { members: data } = await this.client.users.list()
-      const props =
-        data
-          ?.filter(
-            ({ id, name, is_bot: isBot, deleted }) =>
-              typeof id !== 'undefined' && name && !isBot && !deleted
-          )
-          .map(({ id, name }) => ({ id, name })) || []
-      return Members.build(props as MembersArgs)
+      const response = await this.client.users.list()
+      return MembersFactory.buildFromSlackUsersListAPIResponse(response)
     } catch (e) {
       throw new APIError(e?.message || 'API error.')
     }

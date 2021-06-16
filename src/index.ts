@@ -1,30 +1,18 @@
 import * as functions from 'firebase-functions'
 import express from 'express'
-import { WebClient, LogLevel } from '@slack/web-api'
+import { Atsumeruman } from './services/atsumeruman'
 
 const app = express()
 const config = functions.config()
-const client = new WebClient(config.slack.bot_token, {
-  logLevel: LogLevel.DEBUG,
-})
+const atsumeruman = new Atsumeruman({ token: config.slack.bot_token })
 
-app.get('/notify', async (_, res) => {
+app.get('/randomized', async (_, res) => {
   res.sendStatus(200)
 
   try {
-    const users = await client.users.list()
-    const targetUsers = users.members
-      ? users.members.filter((user) => !user.is_bot && !user.deleted)
-      : []
-
-    const mention = targetUsers.map((targetUser) => `<@${targetUser.id}>`).join(' ')
-    const text = `${mention}\nお知らせです`
-
-    client.chat.postMessage({
-      channel: config.slack.channel,
-      text,
-    })
+    atsumeruman.gather(config.slack.channel, 'お知らせです')
   } catch (e) {
+    res.sendStatus(500)
     console.warn(e)
   }
 })

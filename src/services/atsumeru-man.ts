@@ -2,7 +2,7 @@ import { Members } from '../entities/members'
 import { MemberRepository } from '../repositories/member-repository'
 import { Notifier } from './notifier'
 
-export class Atsumeruman {
+export class AtsumeruMan {
   constructor(
     private readonly memberRepository: MemberRepository,
     private readonly notifier: Notifier

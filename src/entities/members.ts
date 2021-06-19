@@ -1,20 +1,14 @@
 import { Member } from './member'
 
-export type Args = { id: string; name: string }[]
-
 export class Members {
   constructor(private readonly members: Member[]) {}
 
-  static build(args: Args): Members {
-    return new Members(args.map(({ id, name }) => new Member(id, name)))
+  *[Symbol.iterator](): Iterable<Member> {
+    yield* this.members
   }
 
   get length(): number {
     return this.members.length
-  }
-
-  get list(): Member[] {
-    return this.members
   }
 
   toIds(): string[] {

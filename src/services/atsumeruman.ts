@@ -1,37 +1,21 @@
-import { WebClient, LogLevel } from '@slack/web-api'
-import { Members, Args as MembersArgs } from '../entities/members'
-import { MembersFactory } from './members-factory'
-
-type Params = { token: string; logLevel?: LogLevel } | { client: WebClient }
-
-export class APIError extends Error {}
+import { Members } from '../entities/members'
+import { MemberRepository } from '../repositories/member-repository'
+import { Notifier } from './notifier'
 
 export class Atsumeruman {
-  private readonly client: WebClient
-
-  constructor(params: Params) {
-    if ('token' in params) {
-      const { token, logLevel } = params
-      this.client = new WebClient(token, {
-        logLevel: logLevel || LogLevel.DEBUG,
-      })
-    } else {
-      this.client = params.client
-    }
-  }
+  constructor(
+    private readonly memberRepository: MemberRepository,
+    private readonly notifier: Notifier
+  ) {}
 
   async gather(channel: string, text?: string): Promise<void> {
-    try {
-      const randomizedMembers = await this.pickRandomizedMembers()
-      const mention = randomizedMembers
-        .toIds()
-        .map((id) => `<@${id}>`)
-        .join(' ')
-      const message = text ? `${mention}\n${text}` : mention
-      this.notify(channel, message)
-    } catch (e) {
-      throw new APIError(e?.message || 'API error.')
-    }
+    const randomizedMembers = await this.pickRandomizedMembers()
+    const mention = randomizedMembers
+      .toIds()
+      .map((id) => `<@${id}>`)
+      .join(' ')
+    const message = text ? `${mention}\n${text}` : mention
+    await this.notifier.notify(channel, message)
   }
 
   // 前提：履歴はメンバー1人に対して最大1レコード
@@ -48,27 +32,10 @@ export class Atsumeruman {
   //  6-3. 抽出したor選択したメンバーを履歴に書き込む
   // 6. メンバーを返却
   async pickRandomizedMembers(): Promise<Members> {
-    const members = await this.fetchActiveSlackMembers()
+    const members = await this.memberRepository.search({
+      ignoreBot: true,
+      ignoreDeleted: true,
+    })
     return members.pickRandomized()
-  }
-
-  async fetchActiveSlackMembers(): Promise<Members> {
-    try {
-      const response = await this.client.users.list()
-      return MembersFactory.buildFromSlackUsersListAPIResponse(response)
-    } catch (e) {
-      throw new APIError(e?.message || 'API error.')
-    }
-  }
-
-  async notify(channel: string, text: string): Promise<void> {
-    try {
-      this.client.chat.postMessage({
-        channel,
-        text,
-      })
-    } catch (e) {
-      throw new APIError(e?.message || 'API error.')
-    }
   }
 }

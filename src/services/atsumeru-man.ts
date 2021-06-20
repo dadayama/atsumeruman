@@ -27,10 +27,10 @@ export class AtsumeruMan {
    */
   async pickGatherTargetMembers(numberOfTargetMember: number): Promise<Members> {
     const currentMembers = await this.currentMemberRepository.getAll()
-    const historyMembers = await this.historyMemberRepository.getAll()
+    const gatheredMembers = await this.historyMemberRepository.getAll()
 
     // 現在のメンバー一覧から、招集履歴に存在しないメンバーのみを抽出する
-    let targetMembers = currentMembers.remove(historyMembers)
+    let targetMembers = currentMembers.remove(gatheredMembers)
     const numberOfMember = targetMembers.length
 
     let shouldFlush = false
@@ -48,7 +48,7 @@ export class AtsumeruMan {
       shouldFlush = true
     }
 
-    this.record(targetMembers, shouldFlush)
+    this.recordGatheringHistory(targetMembers, shouldFlush)
 
     return targetMembers
   }
@@ -58,7 +58,7 @@ export class AtsumeruMan {
    * @param {Members} members 記録対象のメンバー一覧
    * @param {boolean} shouldFlush 記録する前にこれまでの記録を削除するか否か
    */
-  async record(members: Members, shouldFlush = false): Promise<void> {
+  async recordGatheringHistory(members: Members, shouldFlush = false): Promise<void> {
     if (shouldFlush) {
       await this.historyMemberRepository.flush()
     }

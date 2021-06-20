@@ -1,9 +1,10 @@
 import { WebClient, LogLevel, UsersListResponse } from '@slack/web-api'
 import { MemberRepository } from './member-repository'
-import { Member } from '../entities/member'
-import { Members } from '../entities/members'
+import { Member, Members } from '../entities'
 
-export class FetchError extends Error {}
+const IGNORE_MEMBER_IDS = ['USLACKBOT']
+
+export class SlackAPIHandleError extends Error {}
 
 export type SearchOptions = {
   ignoreBot?: boolean
@@ -16,13 +17,13 @@ export class SlackMemberRepository implements MemberRepository {
   private readonly client: WebClient
 
   constructor(args: { token: string; logLevel?: LogLevel } | { client: WebClient }) {
-    if ('token' in args) {
+    if ('client' in args) {
+      this.client = args.client
+    } else {
       const { token, logLevel } = args
       this.client = new WebClient(token, {
         logLevel: logLevel || LogLevel.DEBUG,
       })
-    } else {
-      this.client = args.client
     }
   }
 
@@ -31,34 +32,22 @@ export class SlackMemberRepository implements MemberRepository {
       const { members: slackMembers } = await this.client.users.list()
       if (typeof slackMembers === 'undefined') return new Members([])
 
-      return this.buildMembers(slackMembers as SlackMember[])
+      const validSlackMembers = slackMembers.filter(
+        ({ id, is_bot: isBot, deleted: hasDeleted }) =>
+          typeof id !== 'undefined' && !IGNORE_MEMBER_IDS.includes(id) && !isBot && !hasDeleted
+      )
+      return this.buildMembers(validSlackMembers as SlackMember[])
     } catch (e) {
-      throw new FetchError(e?.message || 'Failed to get the Slack members data.')
+      throw new SlackAPIHandleError(e?.message || 'Failed to get the Slack members data.')
     }
   }
 
-  async search({ ignoreBot, ignoreDeleted }: SearchOptions): Promise<Members> {
-    try {
-      const slackMembers = await this.fetchSlackMembers()
-      if (typeof slackMembers === 'undefined') {
-        throw new FetchError('Slack members does not exist.')
-      }
-
-      const filteredSlackMembers = slackMembers.filter(({ is_bot: isBot, deleted: hasDeleted }) => {
-        if (ignoreBot && isBot) return false
-        if (ignoreDeleted && hasDeleted) return false
-        return true
-      }) as SlackMember[]
-
-      return this.buildMembers(filteredSlackMembers)
-    } catch (e) {
-      throw new FetchError(e?.message || 'Failed to get the Slack members data.')
-    }
+  async save(): Promise<void> {
+    return Promise.resolve()
   }
 
-  private async fetchSlackMembers(): Promise<NonNullable<UsersListResponse['members']>> {
-    const { members } = await this.client.users.list()
-    return members?.filter(({ id }) => typeof id !== 'undefined') || []
+  async delete(): Promise<void> {
+    return Promise.resolve()
   }
 
   private buildMembers(slackMembers: SlackMember[]): Members {

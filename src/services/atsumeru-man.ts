@@ -1,41 +1,52 @@
-import { Members } from '../entities/members'
-import { MemberRepository } from '../repositories/member-repository'
+import { Members } from '../entities'
+import { MemberRepository } from '../repositories'
 import { Notifier } from './notifier'
 
 export class AtsumeruMan {
   constructor(
-    private readonly memberRepository: MemberRepository,
+    private readonly currentMemberRepository: MemberRepository,
+    private readonly historyMemberRepository: MemberRepository,
     private readonly notifier: Notifier
   ) {}
 
-  async gather(channel: string, text?: string): Promise<void> {
-    const randomizedMembers = await this.pickRandomizedMembers()
-    const mention = randomizedMembers
-      .toIds()
-      .map((id) => `<@${id}>`)
-      .join(' ')
-    const message = text ? `${mention}\n${text}` : mention
-    await this.notifier.notify(channel, message)
+  async gather(destination: string, numberOfTargetMember: number, message: string): Promise<void> {
+    const targetMembers = await this.pickGatherTargetMembers(numberOfTargetMember)
+    await this.notifier.notify(destination, targetMembers, message)
   }
 
-  // 前提：履歴はメンバー1人に対して最大1レコード
-  // 1. Slackのメンバー一覧を取得
-  // 2. 履歴を取得
-  // 3. Slackのメンバー一覧から履歴にマッチしないメンバーを抽出する
-  // 4. 抽出したメンバーがn人の場合：履歴をクリア
-  // 5. 抽出したメンバーがn人を超過する場合：
-  //  5-1. Slackのメンバー一覧からランダムにn人を選択する
-  //  5-2. 選択したメンバーを履歴に書き込む
-  // 6. 抽出したメンバーがn人未満の場合：
-  //  6-1. 履歴をクリア
-  //  6-2. Slackのメンバー一覧から、抽出したメンバー以外のメンバーをランダムに選択する
-  //  6-3. 抽出したor選択したメンバーを履歴に書き込む
-  // 6. メンバーを返却
-  async pickRandomizedMembers(): Promise<Members> {
-    const members = await this.memberRepository.search({
-      ignoreBot: true,
-      ignoreDeleted: true,
-    })
-    return members.pickRandomized()
+  /**
+   * 招集対象メンバーをランダムに取得する
+   * 現在のメンバー一覧と招集履歴を突き合わせ、可能な限り履歴に存在しないメンバーを選ぶ
+   * @param {number} numberOfTargetMember 取得人数
+   */
+  async pickGatherTargetMembers(numberOfTargetMember: number): Promise<Members> {
+    const currentMembers = await this.currentMemberRepository.getAll()
+    const historyMembers = await this.historyMemberRepository.getAll()
+
+    // 現在のメンバー一覧から、招集履歴に存在しないメンバーのみを抽出する
+    let targetMembers = currentMembers.remove(historyMembers)
+    const numberOfMember = targetMembers.length
+
+    if (numberOfMember === numberOfTargetMember) {
+      // 招集履歴に存在しないメンバーの数と取得人数が一致する場合は再抽出不要だが、次のために履歴の削除だけしておく
+      this.historyMemberRepository.delete(historyMembers)
+    } else if (numberOfMember > numberOfTargetMember) {
+      // 招集履歴に存在しないメンバーの数が取得人数を上回る場合、抽出したメンバーからさらにランダムに取得人数分だけ抽出する
+      targetMembers = targetMembers.pickRandomized(numberOfTargetMember)
+      // 抽出したメンバーは履歴に記録しておく
+      this.historyMemberRepository.save(targetMembers)
+    } else if (numberOfMember < numberOfTargetMember) {
+      // 招集履歴に存在しないメンバーの数が取得人数を下回る場合、現在のメンバー一覧から不足分を抽出して補う
+      const numberToAdd = numberOfTargetMember - numberOfMember
+      targetMembers = targetMembers.add(
+        currentMembers.remove(targetMembers).pickRandomized(numberToAdd)
+      )
+
+      // 履歴が埋まるためリセットし、再度抽出したメンバーを記録しておく
+      this.historyMemberRepository.delete(historyMembers)
+      this.historyMemberRepository.save(targetMembers)
+    }
+
+    return targetMembers
   }
 }

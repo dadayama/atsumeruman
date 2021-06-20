@@ -1,25 +1,33 @@
 import * as functions from 'firebase-functions'
 import express from 'express'
 import { WebClient, LogLevel } from '@slack/web-api'
-import { AtsumeruMan } from './services/atsumeru-man'
-import { SlackMemberRepository } from './repositories/slack-member-repository'
-import { SlackNotifier } from './services/slack-notifier'
+import Redis from 'ioredis'
+import { AtsumeruMan, SlackNotifier } from './services'
+import { SlackMemberRepository, RedisMemberRepository } from './repositories'
 
 const app = express()
 const config = functions.config()
 
-const client = new WebClient(config.slack.bot_token, {
+const slackClient = new WebClient(config.slack.bot_token, {
   logLevel: LogLevel.DEBUG,
 })
-const slackMemberRepository = new SlackMemberRepository({ client })
-const slackNotifier = new SlackNotifier({ client })
-const atsumeruMan = new AtsumeruMan(slackMemberRepository, slackNotifier)
+const currentMemberRepository = new SlackMemberRepository({ client: slackClient })
+const notifier = new SlackNotifier({ client: slackClient })
+
+const redisClient = new Redis({ host: config.redis.host, port: config.redis.port })
+const redisMemberRepository = new RedisMemberRepository({ client: redisClient })
+
+const atsumeruMan = new AtsumeruMan(currentMemberRepository, redisMemberRepository, notifier)
 
 app.get('/gather', async (_, res) => {
   res.sendStatus(200)
 
   try {
-    atsumeruMan.gather(config.slack.channel, 'お知らせです')
+    atsumeruMan.gather(
+      config.slack.target_channel,
+      config.general.number_of_gather_target,
+      '集まりましょう！'
+    )
   } catch (e) {
     res.sendStatus(500)
     console.warn(e)

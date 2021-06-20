@@ -1,5 +1,6 @@
 import { WebClient, LogLevel } from '@slack/web-api'
 import { Notifier } from './notifier'
+import { Members } from '../entities'
 
 export class NotifyError extends Error {}
 
@@ -17,8 +18,14 @@ export class SlackNotifier implements Notifier {
     }
   }
 
-  async notify(channel: string, text: string): Promise<void> {
+  async notify(channel: string, targetMembers: Members, message: string): Promise<void> {
     try {
+      const mention = targetMembers
+        .toIds()
+        .map((id) => `<@${id}>`)
+        .join(' ')
+      const text = `${mention}\n${message}`
+
       this.client.chat.postMessage({
         channel,
         text,

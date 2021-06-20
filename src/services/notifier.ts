@@ -1,3 +1,5 @@
+import { Members } from '../entities'
+
 export interface Notifier {
-  notify(...args: unknown[]): Promise<void>
+  notify(destination: string, targetMembers: Members, message: string): Promise<void>
 }

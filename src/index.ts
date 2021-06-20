@@ -21,11 +21,7 @@ const atsumeruMan = new AtsumeruMan(currentMemberRepository, redisMemberReposito
 
 app.get('/gather', async (_, res) => {
   try {
-    atsumeruMan.gather(
-      config.slack.target_channel,
-      config.general.number_of_gather_target,
-      '集まりましょう！'
-    )
+    atsumeruMan.gather(config.slack.target_channel, config.general.number_of_gather_target, 'ｱﾂﾏﾚｰ')
     res.sendStatus(200)
   } catch (e) {
     res.sendStatus(500)

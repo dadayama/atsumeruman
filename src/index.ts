@@ -20,14 +20,13 @@ const redisMemberRepository = new RedisMemberRepository({ client: redisClient })
 const atsumeruMan = new AtsumeruMan(currentMemberRepository, redisMemberRepository, notifier)
 
 app.get('/gather', async (_, res) => {
-  res.sendStatus(200)
-
   try {
     atsumeruMan.gather(
       config.slack.target_channel,
       config.general.number_of_gather_target,
       '集まりましょう！'
     )
+    res.sendStatus(200)
   } catch (e) {
     res.sendStatus(500)
     console.warn(e)

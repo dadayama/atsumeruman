@@ -1,3 +1,5 @@
 export { MemberRepository } from './member-repository'
+export { CurrentMemberRepository } from './current-member-repository'
+export { HistoryMemberRepository } from './history-member-repository'
 export { SlackMemberRepository } from './slack-member-repository'
 export { RedisMemberRepository } from './redis-member-repository'

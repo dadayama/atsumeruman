@@ -1,10 +1,10 @@
 import Redis, { Redis as RedisClient } from 'ioredis'
-import { MemberRepository } from './member-repository'
+import { HistoryMemberRepository } from './history-member-repository'
 import { Member, Members } from '../entities'
 
 export class RedisHandleError extends Error {}
 
-export class RedisMemberRepository implements MemberRepository {
+export class RedisMemberRepository implements HistoryMemberRepository {
   private readonly client: RedisClient
 
   constructor(args: { host?: string; port?: number } | { client: RedisClient }) {
@@ -24,7 +24,7 @@ export class RedisMemberRepository implements MemberRepository {
     }
   }
 
-  async save(members?: Member | Members): Promise<void> {
+  async add(members?: Member | Members): Promise<void> {
     if (!members) return Promise.resolve()
 
     try {
@@ -38,7 +38,7 @@ export class RedisMemberRepository implements MemberRepository {
     }
   }
 
-  async delete(members?: Member | Members): Promise<void> {
+  async remove(members?: Member | Members): Promise<void> {
     if (!members) return Promise.resolve()
 
     try {
@@ -48,6 +48,14 @@ export class RedisMemberRepository implements MemberRepository {
       }
     } catch (e) {
       throw new RedisHandleError(e?.message || 'Failed to delete the members data on Redis.')
+    }
+  }
+
+  async flush(): Promise<void> {
+    try {
+      this.client.flushall()
+    } catch (e) {
+      throw new RedisHandleError(e?.message || 'Failed to flush the members data on Redis.')
     }
   }
 

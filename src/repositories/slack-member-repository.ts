@@ -1,5 +1,5 @@
 import { WebClient, LogLevel, UsersListResponse } from '@slack/web-api'
-import { MemberRepository } from './member-repository'
+import { CurrentMemberRepository } from './current-member-repository'
 import { Member, Members } from '../entities'
 
 const IGNORE_MEMBER_IDS = ['USLACKBOT']
@@ -13,7 +13,7 @@ export type SearchOptions = {
 
 type SlackMember = Required<Pick<NonNullable<UsersListResponse['members']>[number], 'id'>>
 
-export class SlackMemberRepository implements MemberRepository {
+export class SlackMemberRepository implements CurrentMemberRepository {
   private readonly client: WebClient
 
   constructor(args: { token: string; logLevel?: LogLevel } | { client: WebClient }) {
@@ -40,14 +40,6 @@ export class SlackMemberRepository implements MemberRepository {
     } catch (e) {
       throw new SlackAPIHandleError(e?.message || 'Failed to get the Slack members data.')
     }
-  }
-
-  async save(): Promise<void> {
-    return Promise.resolve()
-  }
-
-  async delete(): Promise<void> {
-    return Promise.resolve()
   }
 
   private buildMembers(slackMembers: SlackMember[]): Members {

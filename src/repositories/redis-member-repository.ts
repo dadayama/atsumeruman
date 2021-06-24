@@ -1,10 +1,10 @@
 import Redis, { Redis as RedisClient } from 'ioredis'
-import { HistoryMemberRepository } from './history-member-repository'
+import { MemberRepository } from './member-repository'
 import { Member, Members } from '../entities'
 
 export class RedisHandleError extends Error {}
 
-export class RedisMemberRepository implements HistoryMemberRepository {
+export class RedisMemberRepository implements MemberRepository {
   private readonly client: RedisClient
 
   constructor(args: { host?: string; port?: number } | { client: RedisClient }) {
@@ -21,6 +21,14 @@ export class RedisMemberRepository implements HistoryMemberRepository {
       return this.buildMembers(historyMemberIds)
     } catch (e) {
       throw new RedisHandleError(e?.message || 'Failed to get the members data on Redis.')
+    }
+  }
+
+  async exists(memberId: string): Promise<boolean> {
+    try {
+      return !!(await this.client.exists(memberId))
+    } catch (e) {
+      throw new RedisHandleError(e?.message || 'Failed to check the member exists on Redis.')
     }
   }
 
@@ -53,7 +61,7 @@ export class RedisMemberRepository implements HistoryMemberRepository {
 
   async flush(): Promise<void> {
     try {
-      this.client.flushall()
+      this.client.flushdb()
     } catch (e) {
       throw new RedisHandleError(e?.message || 'Failed to flush the members data on Redis.')
     }

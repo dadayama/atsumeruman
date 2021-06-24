@@ -1,11 +1,11 @@
-import { Members } from '../entities'
-import { CurrentMemberRepository, HistoryMemberRepository } from '../repositories'
+import { Member, Members } from '../entities'
+import { MemberRepository } from '../repositories'
 import { Notifier } from './notifier'
 
 export class AtsumeruMan {
   constructor(
-    private readonly currentMemberRepository: CurrentMemberRepository,
-    private readonly historyMemberRepository: HistoryMemberRepository,
+    private readonly currentMemberRepository: MemberRepository,
+    private readonly historyMemberRepository: MemberRepository,
     private readonly notifier: Notifier
   ) {}
 
@@ -16,8 +16,34 @@ export class AtsumeruMan {
    * @param {string} message 通知するメッセージ
    */
   async gather(destination: string, numberOfTargetMember: number, message: string): Promise<void> {
-    const targetMembers = await this.pickGatherTargetMembers(numberOfTargetMember)
-    await this.notifier.notify(destination, targetMembers, message)
+    const targetMembers = await this.pickMembers(numberOfTargetMember)
+    await this.notifier.notify(destination, message, targetMembers)
+  }
+
+  /**
+   * 招集対象メンバーの有無を確認する
+   * @param {number} memberId メンバーID
+   */
+  async hasBeenJoined(memberId: string): Promise<boolean> {
+    return await this.currentMemberRepository.exists(memberId)
+  }
+
+  /**
+   * 招集対象メンバーに追加する
+   * @param {number} memberId メンバーID
+   */
+  async join(memberId: string): Promise<void> {
+    const member = new Member(memberId)
+    await this.currentMemberRepository.add(member)
+  }
+
+  /**
+   * 招集対象メンバーから削除する
+   * @param {number} memberId メンバーID
+   */
+  async leave(memberId: string): Promise<void> {
+    const member = new Member(memberId)
+    await this.currentMemberRepository.remove(member)
   }
 
   /**
@@ -25,7 +51,7 @@ export class AtsumeruMan {
    * 現在のメンバー一覧と招集履歴を突き合わせ、可能な限り履歴に存在しないメンバーを選ぶ
    * @param {number} numberOfTargetMember 取得人数
    */
-  async pickGatherTargetMembers(numberOfTargetMember: number): Promise<Members> {
+  async pickMembers(numberOfTargetMember: number): Promise<Members> {
     const currentMembers = await this.currentMemberRepository.getAll()
     const gatheredMembers = await this.historyMemberRepository.getAll()
 
@@ -48,7 +74,7 @@ export class AtsumeruMan {
       shouldFlush = true
     }
 
-    this.recordGatheringHistory(targetMembers, shouldFlush)
+    this.recordHistory(targetMembers, shouldFlush)
 
     return targetMembers
   }
@@ -58,7 +84,7 @@ export class AtsumeruMan {
    * @param {Members} members 記録対象のメンバー一覧
    * @param {boolean} shouldFlush 記録する前にこれまでの記録を削除するか否か
    */
-  async recordGatheringHistory(members: Members, shouldFlush = false): Promise<void> {
+  async recordHistory(members: Members, shouldFlush = false): Promise<void> {
     if (shouldFlush) {
       await this.historyMemberRepository.flush()
     }

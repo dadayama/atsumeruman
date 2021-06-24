@@ -2,7 +2,7 @@ import { WebClient, LogLevel } from '@slack/web-api'
 import { Notifier } from './notifier'
 import { Members } from '../entities'
 
-export class NotifyError extends Error {}
+export class SlackHandleError extends Error {}
 
 export class SlackNotifier implements Notifier {
   private readonly client: WebClient
@@ -18,20 +18,24 @@ export class SlackNotifier implements Notifier {
     }
   }
 
-  async notify(channel: string, targetMembers: Members, message: string): Promise<void> {
+  async notify(channel: string, message: string, targetMembers?: Members): Promise<void> {
     try {
-      const mention = targetMembers
-        .toIds()
-        .map((id) => `<@${id}>`)
-        .join(' ')
-      const text = `${mention}\n${message}`
+      let text: string = message
+
+      if (targetMembers instanceof Members) {
+        const mention = targetMembers
+          .toIds()
+          .map((id) => `<@${id}>`)
+          .join(' ')
+        text = `${mention}\n${message}`
+      }
 
       this.client.chat.postMessage({
         channel,
         text,
       })
     } catch (e) {
-      throw new NotifyError(e?.message || 'Failed to notification to Slack.')
+      throw new SlackHandleError(e?.message || 'Failed to notification to Slack.')
     }
   }
 }

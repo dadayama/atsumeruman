@@ -21,7 +21,7 @@ export class FileMemberRepository implements MemberRepository {
 
   async getAll(): Promise<Members> {
     try {
-      return this.readMembers(this.filePath)
+      return await this.readMembers(this.filePath)
     } catch (e) {
       throw new FileHandleError(e?.message || 'Failed to get the member data.')
     }
@@ -39,8 +39,8 @@ export class FileMemberRepository implements MemberRepository {
 
   async add(members: Member | Members): Promise<void> {
     try {
-      const currentMembers = this.readMembers(this.filePath)
-      this.writeMembers(this.filePath, currentMembers.add(members))
+      const currentMembers = await this.readMembers(this.filePath)
+      await this.writeMembers(this.filePath, currentMembers.add(members))
     } catch (e) {
       throw new FileHandleError(e?.message || 'Failed to add the members data.')
     }
@@ -48,8 +48,8 @@ export class FileMemberRepository implements MemberRepository {
 
   async remove(members: Member | Members): Promise<void> {
     try {
-      const currentMembers = this.readMembers(this.filePath)
-      this.writeMembers(this.filePath, currentMembers.remove(members))
+      const currentMembers = await this.readMembers(this.filePath)
+      await this.writeMembers(this.filePath, currentMembers.remove(members))
     } catch (e) {
       throw new FileHandleError(e?.message || 'Failed to remove the members data.')
     }
@@ -57,7 +57,7 @@ export class FileMemberRepository implements MemberRepository {
 
   async flush(): Promise<void> {
     try {
-      this.writeMembers(this.filePath, new Members([]))
+      await this.writeMembers(this.filePath, new Members([]))
     } catch (e) {
       throw new FileHandleError(e?.message || 'Failed to flush the members data.')
     }

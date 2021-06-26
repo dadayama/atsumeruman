@@ -82,7 +82,7 @@ slackApp.command('/atsumeruman-join', async ({ command, ack, say, respond }) => 
     } else if (e instanceof FileHandleError) {
       say('ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ ｼﾏｼﾀ !!')
     } else {
-      say('ﾓﾝﾀﾞｲｶﾞ ﾊｯｾｲｼﾏｼﾀ !!')
+      say('ﾓﾝﾀﾞｲｶﾞ ﾊｯｾｲ ｼﾏｼﾀ !!')
     }
 
     return
@@ -104,7 +104,7 @@ slackApp.command('/atsumeruman-leave', async ({ command, ack, say, respond }) =>
     } else if (e instanceof FileHandleError) {
       say('ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ ｼﾏｼﾀ !!')
     } else {
-      say('ﾓﾝﾀﾞｲｶﾞ ﾊｯｾｲｼﾏｼﾀ !!')
+      say('ﾓﾝﾀﾞｲｶﾞ ﾊｯｾｲ ｼﾏｼﾀ !!')
     }
 
     return

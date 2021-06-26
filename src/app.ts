@@ -31,7 +31,8 @@ export class App {
    * @param {string} memberName メンバー名
    */
   async join(memberId: string, memberName: string): Promise<void> {
-    if (this.hasBeenJoined(memberId)) {
+    const hasBeenJoined = await this.hasBeenJoined(memberId)
+    if (hasBeenJoined) {
       throw new DuplicatedMemberError('Member have already joined.')
     }
 
@@ -45,7 +46,8 @@ export class App {
    * @param {string} memberName メンバー名
    */
   async leave(memberId: string, memberName: string): Promise<void> {
-    if (!this.hasBeenJoined(memberId)) {
+    const hasBeenJoined = await this.hasBeenJoined(memberId)
+    if (!hasBeenJoined) {
       throw new NotFoundMemberError('Member have not joined')
     }
 

@@ -17,12 +17,14 @@ export class AtsumeruMan {
    */
   async gather(destination: string, numberOfTargetMember: number, message: string): Promise<void> {
     const targetMembers = await this.pickMembers(numberOfTargetMember)
-    await this.notifier.notify(destination, message, targetMembers)
+    if (targetMembers.length > 0) {
+      await this.notifier.notify(destination, message, targetMembers)
+    }
   }
 
   /**
    * 招集対象メンバーの有無を確認する
-   * @param {number} memberId メンバーID
+   * @param {string} memberId メンバーID
    */
   async hasBeenJoined(memberId: string): Promise<boolean> {
     return await this.currentMemberRepository.exists(memberId)
@@ -30,19 +32,21 @@ export class AtsumeruMan {
 
   /**
    * 招集対象メンバーに追加する
-   * @param {number} memberId メンバーID
+   * @param {string} memberId メンバーID
+   * @param {string} memberName メンバー名
    */
-  async join(memberId: string): Promise<void> {
-    const member = new Member(memberId)
+  async join(memberId: string, memberName: string): Promise<void> {
+    const member = new Member(memberId, memberName)
     await this.currentMemberRepository.add(member)
   }
 
   /**
    * 招集対象メンバーから削除する
-   * @param {number} memberId メンバーID
+   * @param {string} memberId メンバーID
+   * @param {string} memberName メンバー名
    */
-  async leave(memberId: string): Promise<void> {
-    const member = new Member(memberId)
+  async leave(memberId: string, memberName: string): Promise<void> {
+    const member = new Member(memberId, memberName)
     await this.currentMemberRepository.remove(member)
   }
 

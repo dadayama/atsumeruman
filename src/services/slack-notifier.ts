@@ -23,10 +23,7 @@ export class SlackNotifier implements Notifier {
       let text: string = message
 
       if (targetMembers instanceof Members) {
-        const mention = targetMembers
-          .toIds()
-          .map((id) => `<@${id}>`)
-          .join(' ')
+        const mention = [...targetMembers].map(({ id }) => `<@${id}>`).join(' ')
         text = `${mention}\n${message}`
       }
 

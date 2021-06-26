@@ -1,2 +1,2 @@
 export { MemberRepository } from './member-repository'
-export { RedisMemberRepository, RedisHandleError } from './redis-member-repository'
+export { FileMemberRepository, FileHandleError, MembersData } from './file-member-repository'

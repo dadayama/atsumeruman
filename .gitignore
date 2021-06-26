@@ -14,5 +14,5 @@ node_modules/
 # Firebase config
 .runtimeconfig.json
 
-# Docker data
-dump.rdb
+# Data
+data

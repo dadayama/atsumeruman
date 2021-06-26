@@ -26,14 +26,6 @@ export class App {
   }
 
   /**
-   * 招集対象メンバーの有無を確認する
-   * @param {string} memberId メンバーID
-   */
-  async hasBeenJoined(memberId: string): Promise<boolean> {
-    return await this.currentMemberRepository.exists(memberId)
-  }
-
-  /**
    * 招集対象メンバーに追加する
    * @param {string} memberId メンバーID
    * @param {string} memberName メンバー名
@@ -62,11 +54,19 @@ export class App {
   }
 
   /**
+   * 招集対象メンバーの有無を確認する
+   * @param {string} memberId メンバーID
+   */
+  private async hasBeenJoined(memberId: string): Promise<boolean> {
+    return await this.currentMemberRepository.exists(memberId)
+  }
+
+  /**
    * 招集対象メンバーをランダムに取得する
    * 現在のメンバー一覧と招集履歴を突き合わせ、可能な限り履歴に存在しないメンバーを選ぶ
    * @param {number} numberOfTargetMember 取得人数
    */
-  async pickMembers(numberOfTargetMember: number): Promise<Members> {
+  private async pickMembers(numberOfTargetMember: number): Promise<Members> {
     const currentMembers = await this.currentMemberRepository.getAll()
     const gatheredMembers = await this.historyMemberRepository.getAll()
 
@@ -99,7 +99,7 @@ export class App {
    * @param {Members} members 記録対象のメンバー一覧
    * @param {boolean} shouldFlush 記録する前にこれまでの記録を削除するか否か
    */
-  async recordHistory(members: Members, shouldFlush = false): Promise<void> {
+  private async recordHistory(members: Members, shouldFlush = false): Promise<void> {
     if (shouldFlush) {
       await this.historyMemberRepository.flush()
     }

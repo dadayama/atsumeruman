@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import { App as SlackApp, ExpressReceiver } from '@slack/bolt'
 import { WebClient, LogLevel } from '@slack/web-api'
-import { App } from './app'
+import { App, DuplicatedMemberError, NotFoundMemberError } from './app'
 import { SlackNotifier, SlackHandleError } from './services'
 import { FileMemberRepository, FileHandleError, MembersData } from './repositories'
 
@@ -73,17 +73,13 @@ slackApp.command('/atsumeruman-join', async ({ command, ack, say, respond }) => 
   ack()
 
   try {
-    const hasBeenJoined = await app.hasBeenJoined(command.user_id)
-    if (hasBeenJoined) {
-      respond('ｽﾃﾞﾆ ｻﾝｶｽﾞﾐ ﾃﾞｽ !!')
-      return
-    }
-
     await app.join(command.user_id, command.user_name)
   } catch (e) {
     console.warn(e)
 
-    if (e instanceof FileHandleError) {
+    if (e instanceof DuplicatedMemberError) {
+      respond('ｽﾃﾞﾆ ｻﾝｶｽﾞﾐ ﾃﾞｽ !!')
+    } else if (e instanceof FileHandleError) {
       say('ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ ｼﾏｼﾀ !!')
     } else {
       say('ﾓﾝﾀﾞｲｶﾞ ﾊｯｾｲｼﾏｼﾀ !!')
@@ -99,17 +95,13 @@ slackApp.command('/atsumeruman-leave', async ({ command, ack, say, respond }) =>
   ack()
 
   try {
-    const hasBeenJoined = await app.hasBeenJoined(command.user_id)
-    if (!hasBeenJoined) {
-      respond('ｻﾝｶ ｼﾃｲﾏｾﾝ !!')
-      return
-    }
-
     await app.leave(command.user_id, command.user_name)
   } catch (e) {
     console.warn(e)
 
-    if (e instanceof FileHandleError) {
+    if (e instanceof NotFoundMemberError) {
+      respond('ｻﾝｶ ｼﾃｲﾏｾﾝ !!')
+    } else if (e instanceof FileHandleError) {
       say('ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ ｼﾏｼﾀ !!')
     } else {
       say('ﾓﾝﾀﾞｲｶﾞ ﾊｯｾｲｼﾏｼﾀ !!')

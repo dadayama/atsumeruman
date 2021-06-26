@@ -2,6 +2,9 @@ import { Member, Members } from './entities'
 import { MemberRepository } from './repositories'
 import { Notifier } from './services'
 
+export class DuplicatedMemberError extends Error {}
+export class NotFoundMemberError extends Error {}
+
 export class App {
   constructor(
     private readonly currentMemberRepository: MemberRepository,
@@ -36,6 +39,10 @@ export class App {
    * @param {string} memberName メンバー名
    */
   async join(memberId: string, memberName: string): Promise<void> {
+    if (this.hasBeenJoined(memberId)) {
+      throw new DuplicatedMemberError('Member have already joined.')
+    }
+
     const member = new Member(memberId, memberName)
     await this.currentMemberRepository.add(member)
   }
@@ -46,6 +53,10 @@ export class App {
    * @param {string} memberName メンバー名
    */
   async leave(memberId: string, memberName: string): Promise<void> {
+    if (!this.hasBeenJoined(memberId)) {
+      throw new NotFoundMemberError('Member have not joined')
+    }
+
     const member = new Member(memberId, memberName)
     await this.currentMemberRepository.remove(member)
   }

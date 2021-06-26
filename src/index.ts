@@ -1,20 +1,16 @@
 import * as functions from 'firebase-functions'
 import fs from 'fs'
-import path from 'path'
 import { App as SlackApp, ExpressReceiver } from '@slack/bolt'
 import { WebClient, LogLevel } from '@slack/web-api'
 import { App, DuplicatedMemberError, NotFoundMemberError } from './app'
 import { SlackNotifier, SlackHandleError } from './services'
 import { FileMemberRepository, FileHandleError, MembersData } from './repositories'
 
-const BASE_DATA_DIR = path.join(path.resolve('/tmp'), './atsumeruman/data')
+const BASE_DATA_DIR = '/tmp'
 const CURRENT_MEMBERS_DATA_PATH = `${BASE_DATA_DIR}/current-members.json`
 const HISTORY_MEMBERS_DATA_PATH = `${BASE_DATA_DIR}/history-members.json`
 const INITIAL_DATA = JSON.stringify({ members: [] } as MembersData)
 
-if (!fs.existsSync(BASE_DATA_DIR)) {
-  fs.mkdirSync(BASE_DATA_DIR)
-}
 if (!fs.existsSync(CURRENT_MEMBERS_DATA_PATH)) {
   fs.writeFileSync(CURRENT_MEMBERS_DATA_PATH, INITIAL_DATA)
 }

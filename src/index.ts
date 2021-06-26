@@ -6,33 +6,42 @@ import { App, DuplicatedMemberError, NotFoundMemberError } from './app'
 import { SlackNotifier, SlackHandleError } from './services'
 import { FileMemberRepository, FileHandleError, MembersData } from './repositories'
 
+const config = functions.config()
+
 const BASE_DATA_DIR = '/tmp'
 const CURRENT_MEMBERS_DATA_PATH = `${BASE_DATA_DIR}/current-members.json`
 const HISTORY_MEMBERS_DATA_PATH = `${BASE_DATA_DIR}/history-members.json`
-const INITIAL_DATA = JSON.stringify({ members: [] } as MembersData)
 
-if (!fs.existsSync(CURRENT_MEMBERS_DATA_PATH)) {
-  fs.writeFileSync(CURRENT_MEMBERS_DATA_PATH, INITIAL_DATA)
+const initialize = (): void => {
+  const initialData = JSON.stringify({ members: [] } as MembersData)
+
+  if (!fs.existsSync(CURRENT_MEMBERS_DATA_PATH)) {
+    fs.writeFileSync(CURRENT_MEMBERS_DATA_PATH, initialData)
+  }
+  if (!fs.existsSync(HISTORY_MEMBERS_DATA_PATH)) {
+    fs.writeFileSync(HISTORY_MEMBERS_DATA_PATH, initialData)
+  }
 }
-if (!fs.existsSync(HISTORY_MEMBERS_DATA_PATH)) {
-  fs.writeFileSync(HISTORY_MEMBERS_DATA_PATH, INITIAL_DATA)
+
+const createApp = (): App => {
+  const currentMemberRepository = new FileMemberRepository({
+    filePath: CURRENT_MEMBERS_DATA_PATH,
+  })
+  const historyMemberRepository = new FileMemberRepository({
+    filePath: HISTORY_MEMBERS_DATA_PATH,
+  })
+
+  const slackClient = new WebClient(config.slack.bot_token, {
+    logLevel: LogLevel.DEBUG,
+  })
+  const notifier = new SlackNotifier({ client: slackClient })
+
+  return new App(currentMemberRepository, historyMemberRepository, notifier)
 }
 
-const currentMemberRepository = new FileMemberRepository({
-  filePath: CURRENT_MEMBERS_DATA_PATH,
-})
-const historyMemberRepository = new FileMemberRepository({
-  filePath: HISTORY_MEMBERS_DATA_PATH,
-})
+initialize()
 
-const config = functions.config()
-
-const slackClient = new WebClient(config.slack.bot_token, {
-  logLevel: LogLevel.DEBUG,
-})
-const notifier = new SlackNotifier({ client: slackClient })
-
-const app = new App(currentMemberRepository, historyMemberRepository, notifier)
+const app = createApp()
 
 const receiver = new ExpressReceiver({
   signingSecret: config.slack.signing_secret,
@@ -47,18 +56,19 @@ const slackApp = new SlackApp({
 
 receiver.app.get('/gather', async (_, res) => {
   try {
-    app.gather(config.slack.target_channel, config.general.number_of_target, 'ｱﾂﾏﾚｰ')
+    const message = `ｱﾂﾏﾚｰ\n${config.general.video_chat_url}`
+    app.gather(config.slack.target_channel, config.general.number_of_target, message)
 
     return res.sendStatus(200)
   } catch (e) {
     console.warn(e)
 
     if (e instanceof FileHandleError) {
-      notifier.notify(config.slack.target_channel, 'ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ ｼﾏｼﾀ !!')
+      app.notify(config.slack.target_channel, 'ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ ｼﾏｼﾀ !!')
     } else if (e instanceof SlackHandleError) {
-      notifier.notify(config.slack.target_channel, 'Slack ﾄﾉ ｾﾂｿﾞｸ ﾆ ﾓﾝﾀﾞｲ ｶﾞ ｱﾘﾏｽ !!')
+      app.notify(config.slack.target_channel, 'Slack ﾄﾉ ｾﾂｿﾞｸ ﾆ ﾓﾝﾀﾞｲ ｶﾞ ｱﾘﾏｽ !!')
     } else {
-      notifier.notify(config.slack.target_channel, `ﾓﾝﾀﾞｲ ｶﾞ ﾊｯｾｲ ｼﾏｼﾀ !!\nｱﾂﾒﾗﾚﾏｾﾝ !!`)
+      app.notify(config.slack.target_channel, `ﾓﾝﾀﾞｲ ｶﾞ ﾊｯｾｲ ｼﾏｼﾀ !!\nｱﾂﾒﾗﾚﾏｾﾝ !!`)
     }
 
     return res.sendStatus(500)

@@ -56,6 +56,15 @@ export class App {
   }
 
   /**
+   * メッセージを通知する
+   * @param {string} destination 通知先
+   * @param {string} message メッセージ
+   */
+  async notify(destination: string, message: string): Promise<void> {
+    await this.notifier.notify(destination, message)
+  }
+
+  /**
    * 招集対象メンバーの有無を確認する
    * @param {string} memberId メンバーID
    */

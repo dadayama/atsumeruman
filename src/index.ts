@@ -3,7 +3,8 @@ import fs from 'fs'
 import path from 'path'
 import { App as SlackApp, ExpressReceiver } from '@slack/bolt'
 import { WebClient, LogLevel } from '@slack/web-api'
-import { AtsumeruMan, SlackNotifier, SlackHandleError } from './services'
+import { App } from './app'
+import { SlackNotifier, SlackHandleError } from './services'
 import { FileMemberRepository, FileHandleError, MembersData } from './repositories'
 
 const BASE_DATA_DIR = path.join(path.resolve('./'), './data')
@@ -35,7 +36,7 @@ const slackClient = new WebClient(config.slack.bot_token, {
 })
 const notifier = new SlackNotifier({ client: slackClient })
 
-const atsumeruMan = new AtsumeruMan(currentMemberRepository, historyMemberRepository, notifier)
+const app = new App(currentMemberRepository, historyMemberRepository, notifier)
 
 const receiver = new ExpressReceiver({
   signingSecret: config.slack.signing_secret,
@@ -50,7 +51,7 @@ const slackApp = new SlackApp({
 
 receiver.app.get('/gather', async (_, res) => {
   try {
-    atsumeruMan.gather(config.slack.target_channel, config.general.number_of_target, 'ｱﾂﾏﾚｰ')
+    app.gather(config.slack.target_channel, config.general.number_of_target, 'ｱﾂﾏﾚｰ')
 
     return res.sendStatus(200)
   } catch (e) {
@@ -72,13 +73,13 @@ slackApp.command('/atsumeruman-join', async ({ command, ack, say, respond }) => 
   ack()
 
   try {
-    const hasBeenJoined = await atsumeruMan.hasBeenJoined(command.user_id)
+    const hasBeenJoined = await app.hasBeenJoined(command.user_id)
     if (hasBeenJoined) {
       respond('ｽﾃﾞﾆ ｻﾝｶｽﾞﾐ ﾃﾞｽ !!')
       return
     }
 
-    await atsumeruMan.join(command.user_id, command.user_name)
+    await app.join(command.user_id, command.user_name)
   } catch (e) {
     console.warn(e)
 
@@ -98,13 +99,13 @@ slackApp.command('/atsumeruman-leave', async ({ command, ack, say, respond }) =>
   ack()
 
   try {
-    const hasBeenJoined = await atsumeruMan.hasBeenJoined(command.user_id)
+    const hasBeenJoined = await app.hasBeenJoined(command.user_id)
     if (!hasBeenJoined) {
       respond('ｻﾝｶ ｼﾃｲﾏｾﾝ !!')
       return
     }
 
-    await atsumeruMan.leave(command.user_id, command.user_name)
+    await app.leave(command.user_id, command.user_name)
   } catch (e) {
     console.warn(e)
 

@@ -1,8 +1,8 @@
-import { Member, Members } from '../entities'
-import { MemberRepository } from '../repositories'
-import { Notifier } from './notifier'
+import { Member, Members } from './entities'
+import { MemberRepository } from './repositories'
+import { Notifier } from './services'
 
-export class AtsumeruMan {
+export class App {
   constructor(
     private readonly currentMemberRepository: MemberRepository,
     private readonly historyMemberRepository: MemberRepository,

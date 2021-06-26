@@ -7,7 +7,7 @@ import { App, DuplicatedMemberError, NotFoundMemberError } from './app'
 import { SlackNotifier, SlackHandleError } from './services'
 import { FileMemberRepository, FileHandleError, MembersData } from './repositories'
 
-const BASE_DATA_DIR = path.join(path.resolve('./'), './data')
+const BASE_DATA_DIR = path.join(path.resolve('/tmp'), './atsumeruman/data')
 const CURRENT_MEMBERS_DATA_PATH = `${BASE_DATA_DIR}/current-members.json`
 const HISTORY_MEMBERS_DATA_PATH = `${BASE_DATA_DIR}/history-members.json`
 const INITIAL_DATA = JSON.stringify({ members: [] } as MembersData)

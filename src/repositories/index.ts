@@ -1,2 +1,2 @@
-export { MemberRepository } from './member-repository'
-export { FileMemberRepository, FileHandleError, MembersData } from './file-member-repository'
+export { MemberRepository, MemberRepositoryHandleError } from './member-repository'
+export { FileMemberRepository, MembersData } from './file-member-repository'

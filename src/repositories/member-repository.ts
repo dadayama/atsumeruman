@@ -1,5 +1,7 @@
 import { Member, Members } from '../entities'
 
+export class MemberRepositoryHandleError extends Error {}
+
 export type MemberRepository = {
   getAll(): Promise<Members>
   exists(memberId: string): Promise<boolean>

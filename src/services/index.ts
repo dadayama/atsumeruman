@@ -1,2 +1,2 @@
-export { Notifier } from './notifier'
-export { SlackNotifier, SlackHandleError } from './slack-notifier'
+export { Notifier, NotifierHandleError } from './notifier'
+export { SlackNotifier } from './slack-notifier'

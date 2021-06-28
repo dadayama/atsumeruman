@@ -1,6 +1,9 @@
-import { Members } from '../entities'
+import { Member, Members } from '../entities'
+
+export class NotifierHandleError extends Error {}
 
 export type Notifier = {
-  notify(destination: string, message: string): Promise<void>
-  notify(destination: string, message: string, targetMembers: Members): Promise<void>
+  notify(message: string): Promise<void>
+  notify(message: string, targetMembers: Member | Members): Promise<void>
+  notifySecretly(message: string, targetMember: Member): Promise<void>
 }

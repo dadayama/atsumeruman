@@ -1,27 +1,57 @@
 import { Member, Members } from './entities'
-import { MemberRepository } from './repositories'
-import { Notifier } from './services'
+import { MemberRepository, MemberRepositoryHandleError } from './repositories'
+import { Notifier, NotifierHandleError } from './services'
 
 export class DuplicatedMemberError extends Error {}
 export class NotFoundMemberError extends Error {}
 
 export class App {
-  constructor(
-    private readonly currentMemberRepository: MemberRepository,
-    private readonly historyMemberRepository: MemberRepository,
-    private readonly notifier: Notifier
-  ) {}
+  private readonly urlToGather: string
+  private readonly numberOfTarget: number
+  private readonly currentMemberRepository: MemberRepository
+  private readonly historyMemberRepository: MemberRepository
+  private readonly notifier: Notifier
+
+  constructor({
+    urlToGather,
+    numberOfTarget,
+    currentMemberRepository,
+    historyMemberRepository,
+    notifier,
+  }: {
+    urlToGather: string
+    numberOfTarget: number
+    currentMemberRepository: MemberRepository
+    historyMemberRepository: MemberRepository
+    notifier: Notifier
+  }) {
+    this.urlToGather = urlToGather
+    this.numberOfTarget = numberOfTarget
+    this.currentMemberRepository = currentMemberRepository
+    this.historyMemberRepository = historyMemberRepository
+    this.notifier = notifier
+  }
 
   /**
    * 招集対象メンバーをランダムに取得し、通知を送る
-   * @param {string} destination 通知先
-   * @param {number} numberOfTargetMember 取得人数
-   * @param {string} message 通知するメッセージ
    */
-  async gather(destination: string, numberOfTargetMember: number, message: string): Promise<void> {
-    const targetMembers = await this.pickMembers(numberOfTargetMember)
-    if (targetMembers.length > 0) {
-      await this.notifier.notify(destination, message, targetMembers)
+  async gather(): Promise<void> {
+    try {
+      const targetMembers = await this.pickMembers(this.numberOfTarget)
+      if (targetMembers.length === 0) return
+
+      const message = `ｱﾂﾏﾚｰ\n${this.urlToGather}`
+      await this.notifier.notify(message, targetMembers)
+    } catch (e) {
+      console.warn(e)
+
+      if (e instanceof MemberRepositoryHandleError) {
+        this.notifier.notify('ﾒﾝﾊﾞｰ ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ ｼﾏｼﾀ !!')
+      } else if (e instanceof NotifierHandleError) {
+        this.notifier.notify('ﾂｳﾁ ｻｰﾋﾞｽ ﾄﾉ ｾﾂｿﾞｸ ﾆ ﾓﾝﾀﾞｲ ｶﾞ ｱﾘﾏｽ !!')
+      } else {
+        this.notifier.notify('ﾓﾝﾀﾞｲｶﾞ ﾊｯｾｲ ｼﾏｼﾀ !!')
+      }
     }
   }
 
@@ -31,13 +61,27 @@ export class App {
    * @param {string} memberName メンバー名
    */
   async join(memberId: string, memberName: string): Promise<void> {
-    const hasBeenJoined = await this.hasBeenJoined(memberId)
-    if (hasBeenJoined) {
-      throw new DuplicatedMemberError('Member have already joined.')
-    }
-
     const member = new Member(memberId, memberName)
-    await this.currentMemberRepository.add(member)
+
+    try {
+      const hasBeenJoined = await this.hasBeenJoined(memberId)
+      if (hasBeenJoined) {
+        throw new DuplicatedMemberError('Member have already joined.')
+      }
+
+      await this.currentMemberRepository.add(member)
+      this.notifier.notify('ｻﾝｶ ｱﾘｶﾞﾄｳ !!', member)
+    } catch (e) {
+      console.warn(e)
+
+      if (e instanceof DuplicatedMemberError) {
+        this.notifier.notifySecretly('ｽﾃﾞﾆ ｻﾝｶｽﾞﾐ ﾃﾞｽ !!', member)
+      } else if (e instanceof MemberRepositoryHandleError) {
+        this.notifier.notify('ﾒﾝﾊﾞｰ ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ ｼﾏｼﾀ !!')
+      } else {
+        this.notifier.notify('ﾓﾝﾀﾞｲｶﾞ ﾊｯｾｲ ｼﾏｼﾀ !!')
+      }
+    }
   }
 
   /**
@@ -46,22 +90,27 @@ export class App {
    * @param {string} memberName メンバー名
    */
   async leave(memberId: string, memberName: string): Promise<void> {
-    const hasBeenJoined = await this.hasBeenJoined(memberId)
-    if (!hasBeenJoined) {
-      throw new NotFoundMemberError('Member have not joined')
-    }
-
     const member = new Member(memberId, memberName)
-    await this.currentMemberRepository.remove(member)
-  }
 
-  /**
-   * メッセージを通知する
-   * @param {string} destination 通知先
-   * @param {string} message メッセージ
-   */
-  async notify(destination: string, message: string): Promise<void> {
-    await this.notifier.notify(destination, message)
+    try {
+      const hasBeenJoined = await this.hasBeenJoined(memberId)
+      if (!hasBeenJoined) {
+        throw new NotFoundMemberError('Member have not joined')
+      }
+
+      await this.currentMemberRepository.remove(member)
+      this.notifier.notify('ﾏﾀﾈ !!', member)
+    } catch (e) {
+      console.warn(e)
+
+      if (e instanceof DuplicatedMemberError) {
+        this.notifier.notifySecretly('ｻﾝｶ ｼﾃ ｲﾏｾﾝ !!', member)
+      } else if (e instanceof MemberRepositoryHandleError) {
+        this.notifier.notify('ﾒﾝﾊﾞｰ ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ ｼﾏｼﾀ !!')
+      } else {
+        this.notifier.notify('ﾓﾝﾀﾞｲｶﾞ ﾊｯｾｲ ｼﾏｼﾀ !!')
+      }
+    }
   }
 
   /**

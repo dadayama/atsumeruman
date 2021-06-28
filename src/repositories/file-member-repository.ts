@@ -1,19 +1,17 @@
 import fs from 'fs'
-import { MemberRepository } from './member-repository'
+import { MemberRepository, MemberRepositoryHandleError } from './member-repository'
 import { Member, Members } from '../entities'
 
 export type MembersData = {
   members: { id: string; name: string }[]
 }
 
-export class FileHandleError extends Error {}
-
 export class FileMemberRepository implements MemberRepository {
   private readonly filePath: string
 
   constructor({ filePath }: { filePath: string }) {
     if (!fs.existsSync(filePath)) {
-      throw new FileHandleError('File does not exist.')
+      throw new MemberRepositoryHandleError('File does not exist.')
     }
 
     this.filePath = filePath
@@ -23,7 +21,7 @@ export class FileMemberRepository implements MemberRepository {
     try {
       return await this.readMembers(this.filePath)
     } catch (e) {
-      throw new FileHandleError(e?.message || 'Failed to get the member data.')
+      throw new MemberRepositoryHandleError(e?.message || 'Failed to get the member data.')
     }
   }
 
@@ -33,7 +31,7 @@ export class FileMemberRepository implements MemberRepository {
       const member = members.findById(memberId)
       return !!member
     } catch (e) {
-      throw new FileHandleError(e?.message || 'Failed to check the member exists.')
+      throw new MemberRepositoryHandleError(e?.message || 'Failed to check the member exists.')
     }
   }
 
@@ -42,7 +40,7 @@ export class FileMemberRepository implements MemberRepository {
       const currentMembers = await this.readMembers(this.filePath)
       await this.writeMembers(this.filePath, currentMembers.add(members))
     } catch (e) {
-      throw new FileHandleError(e?.message || 'Failed to add the members data.')
+      throw new MemberRepositoryHandleError(e?.message || 'Failed to add the members data.')
     }
   }
 
@@ -51,7 +49,7 @@ export class FileMemberRepository implements MemberRepository {
       const currentMembers = await this.readMembers(this.filePath)
       await this.writeMembers(this.filePath, currentMembers.remove(members))
     } catch (e) {
-      throw new FileHandleError(e?.message || 'Failed to remove the members data.')
+      throw new MemberRepositoryHandleError(e?.message || 'Failed to remove the members data.')
     }
   }
 
@@ -59,7 +57,7 @@ export class FileMemberRepository implements MemberRepository {
     try {
       await this.writeMembers(this.filePath, new Members([]))
     } catch (e) {
-      throw new FileHandleError(e?.message || 'Failed to flush the members data.')
+      throw new MemberRepositoryHandleError(e?.message || 'Failed to flush the members data.')
     }
   }
 

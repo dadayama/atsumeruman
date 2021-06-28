@@ -2,9 +2,9 @@ import * as functions from 'firebase-functions'
 import fs from 'fs'
 import { App as SlackApp, ExpressReceiver } from '@slack/bolt'
 import { WebClient, LogLevel } from '@slack/web-api'
-import { App, DuplicatedMemberError, NotFoundMemberError } from './app'
-import { SlackNotifier, SlackHandleError } from './services'
-import { FileMemberRepository, FileHandleError, MembersData } from './repositories'
+import { App } from './app'
+import { SlackNotifier } from './services'
+import { FileMemberRepository, MembersData } from './repositories'
 
 const config = functions.config()
 
@@ -34,9 +34,15 @@ const createApp = (): App => {
   const slackClient = new WebClient(config.slack.bot_token, {
     logLevel: LogLevel.DEBUG,
   })
-  const notifier = new SlackNotifier({ client: slackClient })
+  const notifier = new SlackNotifier({ channel: config.slack.target_channel, client: slackClient })
 
-  return new App(currentMemberRepository, historyMemberRepository, notifier)
+  return new App({
+    numberOfTarget: config.general.number_of_target,
+    urlToGather: config.general.video_chat_url,
+    currentMemberRepository,
+    historyMemberRepository,
+    notifier,
+  })
 }
 
 initialize()
@@ -54,69 +60,22 @@ const slackApp = new SlackApp({
   processBeforeResponse: true,
 })
 
-receiver.app.get('/gather', async (_, res) => {
-  try {
-    const message = `ｱﾂﾏﾚｰ\n${config.general.video_chat_url}`
-    app.gather(config.slack.target_channel, config.general.number_of_target, message)
-
-    return res.sendStatus(200)
-  } catch (e) {
-    console.warn(e)
-
-    if (e instanceof FileHandleError) {
-      app.notify(config.slack.target_channel, 'ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ ｼﾏｼﾀ !!')
-    } else if (e instanceof SlackHandleError) {
-      app.notify(config.slack.target_channel, 'Slack ﾄﾉ ｾﾂｿﾞｸ ﾆ ﾓﾝﾀﾞｲ ｶﾞ ｱﾘﾏｽ !!')
-    } else {
-      app.notify(config.slack.target_channel, `ﾓﾝﾀﾞｲ ｶﾞ ﾊｯｾｲ ｼﾏｼﾀ !!\nｱﾂﾒﾗﾚﾏｾﾝ !!`)
-    }
-
-    return res.sendStatus(500)
-  }
-})
-
 slackApp.command('/atsumeruman-join', async ({ command, ack, say, respond }) => {
   ack()
-
-  try {
-    await app.join(command.user_id, command.user_name)
-  } catch (e) {
-    console.warn(e)
-
-    if (e instanceof DuplicatedMemberError) {
-      respond('ｽﾃﾞﾆ ｻﾝｶｽﾞﾐ ﾃﾞｽ !!')
-    } else if (e instanceof FileHandleError) {
-      say('ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ ｼﾏｼﾀ !!')
-    } else {
-      say('ﾓﾝﾀﾞｲｶﾞ ﾊｯｾｲ ｼﾏｼﾀ !!')
-    }
-
-    return
-  }
-
-  say(`<@${command.user_id}>\nｻﾝｶ ｱﾘｶﾞﾄｳ !!`)
+  await app.join(command.user_id, command.user_name)
 })
 
 slackApp.command('/atsumeruman-leave', async ({ command, ack, say, respond }) => {
   ack()
-
-  try {
-    await app.leave(command.user_id, command.user_name)
-  } catch (e) {
-    console.warn(e)
-
-    if (e instanceof NotFoundMemberError) {
-      respond('ｻﾝｶ ｼﾃｲﾏｾﾝ !!')
-    } else if (e instanceof FileHandleError) {
-      say('ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ ｼﾏｼﾀ !!')
-    } else {
-      say('ﾓﾝﾀﾞｲｶﾞ ﾊｯｾｲ ｼﾏｼﾀ !!')
-    }
-
-    return
-  }
-
-  say(`<@${command.user_id}>\nﾏﾀﾈ !!`)
+  await app.leave(command.user_id, command.user_name)
 })
 
-export default functions.https.onRequest(receiver.app)
+export const command = functions.https.onRequest(receiver.app)
+
+export const cron = functions.pubsub
+  .schedule('every 5 minutes')
+  .timeZone('Asia/Tokyo')
+  .onRun(async () => {
+    await app.gather()
+    return null
+  })

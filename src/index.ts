@@ -60,20 +60,25 @@ const slackApp = new SlackApp({
   processBeforeResponse: true,
 })
 
-slackApp.command('/atsumeruman-join', async ({ command, ack, say, respond }) => {
+slackApp.command('/atsumeruman-join', async ({ command, ack }) => {
   ack()
-  await app.join(command.user_id, command.user_name)
+  await app.joinMember(command.user_id, command.user_name)
 })
 
-slackApp.command('/atsumeruman-leave', async ({ command, ack, say, respond }) => {
+slackApp.command('/atsumeruman-leave', async ({ command, ack }) => {
   ack()
-  await app.leave(command.user_id, command.user_name)
+  await app.leaveMember(command.user_id, command.user_name)
+})
+
+slackApp.command('/atsumeruman-list', async ({ ack }) => {
+  ack()
+  await app.listJoinedMembers()
 })
 
 export const command = functions.https.onRequest(receiver.app)
 
 export const cron = functions.pubsub
-  .schedule('every 5 minutes')
+  .schedule('every 1 minutes')
   .timeZone('Asia/Tokyo')
   .onRun(async () => {
     await app.gather()

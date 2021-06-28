@@ -25,13 +25,12 @@ export class FileMemberRepository implements MemberRepository {
     }
   }
 
-  async exists(memberId: string): Promise<boolean> {
+  async findById(memberId: string): Promise<Member | undefined> {
     try {
       const members = await this.readMembers(this.filePath)
-      const member = members.findById(memberId)
-      return !!member
+      return members.findById(memberId)
     } catch (e) {
-      throw new MemberRepositoryHandleError(e?.message || 'Failed to check the member exists.')
+      throw new MemberRepositoryHandleError(e?.message || 'Failed to find the member exists.')
     }
   }
 

@@ -60,11 +60,11 @@ export class App {
    * @param {string} memberId メンバーID
    * @param {string} memberName メンバー名
    */
-  async join(memberId: string, memberName: string): Promise<void> {
+  async joinMember(memberId: string, memberName: string): Promise<void> {
     const member = new Member(memberId, memberName)
 
     try {
-      const hasBeenJoined = await this.hasBeenJoined(memberId)
+      const hasBeenJoined = await this.hasBeenJoined(member)
       if (hasBeenJoined) {
         throw new DuplicatedMemberError('Member have already joined.')
       }
@@ -89,11 +89,11 @@ export class App {
    * @param {string} memberId メンバーID
    * @param {string} memberName メンバー名
    */
-  async leave(memberId: string, memberName: string): Promise<void> {
+  async leaveMember(memberId: string, memberName: string): Promise<void> {
     const member = new Member(memberId, memberName)
 
     try {
-      const hasBeenJoined = await this.hasBeenJoined(memberId)
+      const hasBeenJoined = await this.hasBeenJoined(member)
       if (!hasBeenJoined) {
         throw new NotFoundMemberError('Member have not joined')
       }
@@ -103,7 +103,7 @@ export class App {
     } catch (e) {
       console.warn(e)
 
-      if (e instanceof DuplicatedMemberError) {
+      if (e instanceof NotFoundMemberError) {
         this.notifier.notifySecretly('ｻﾝｶ ｼﾃ ｲﾏｾﾝ !!', member)
       } else if (e instanceof MemberRepositoryHandleError) {
         this.notifier.notify('ﾒﾝﾊﾞｰ ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ ｼﾏｼﾀ !!')
@@ -114,11 +114,29 @@ export class App {
   }
 
   /**
-   * 招集対象メンバーの有無を確認する
-   * @param {string} memberId メンバーID
+   * 招集対象メンバー一覧を表示する
    */
-  private async hasBeenJoined(memberId: string): Promise<boolean> {
-    return await this.currentMemberRepository.exists(memberId)
+  async listJoinedMembers(): Promise<void> {
+    const members = await this.currentMemberRepository.getAll()
+    let message: string
+
+    if (members.length) {
+      const membersString = [...members].map((member) => `- ${member.name}`).join('\n')
+      message = `ﾒﾝﾊﾞｰ ｲﾁﾗﾝ ﾃﾞｽ !!\n${membersString}`
+    } else {
+      message = 'ﾀﾞﾚﾓ ｻﾝｶ ｼﾃ ｲﾏｾﾝ !!'
+    }
+
+    this.notifier.notify(message)
+  }
+
+  /**
+   * 招集対象メンバーの有無を確認する
+   * @param {string} member メンバー
+   */
+  private async hasBeenJoined(member: Member): Promise<boolean> {
+    const _member = await this.currentMemberRepository.findById(member.id)
+    return !!_member
   }
 
   /**
@@ -126,7 +144,7 @@ export class App {
    * 現在のメンバー一覧と招集履歴を突き合わせ、可能な限り履歴に存在しないメンバーを選ぶ
    * @param {number} numberOfTargetMember 取得人数
    */
-  private async pickMembers(numberOfTargetMember: number): Promise<Members> {
+  async pickMembers(numberOfTargetMember: number): Promise<Members> {
     const currentMembers = await this.currentMemberRepository.getAll()
     const gatheredMembers = await this.historyMemberRepository.getAll()
 

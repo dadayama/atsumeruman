@@ -121,7 +121,7 @@ export class App {
     let message: string
 
     if (members.length) {
-      const membersString = [...members].map((member) => `- ${member.name}`).join('\n')
+      const membersString = [...members].map((member) => `• *${member.name}*`).join('\n')
       message = `ﾒﾝﾊﾞｰ ｲﾁﾗﾝ ﾃﾞｽ !!\n${membersString}`
     } else {
       message = 'ﾀﾞﾚﾓ ｻﾝｶ ｼﾃ ｲﾏｾﾝ !!'
@@ -152,7 +152,7 @@ export class App {
     let targetMembers = currentMembers.remove(gatheredMembers)
     const numberOfMember = targetMembers.length
 
-    let shouldFlush = false
+    let shouldClear = false
 
     if (numberOfMember > numberOfTargetMember) {
       // 招集履歴に存在しないメンバーの数が取得人数を上回る場合、抽出したメンバーからさらにランダムに取得人数分だけ抽出する
@@ -163,24 +163,16 @@ export class App {
       targetMembers = targetMembers.add(
         currentMembers.remove(targetMembers).pickRandomized(numberToAdd)
       )
-      // 記録が埋まるので全記録をリセットする
-      shouldFlush = true
+      // 記録が埋まるので全記録をクリアする
+      shouldClear = true
     }
 
-    this.recordHistory(targetMembers, shouldFlush)
+    if (shouldClear) {
+      // 全記録をクリア
+      await this.historyMemberRepository.remove(gatheredMembers)
+    }
+    await this.historyMemberRepository.add(targetMembers)
 
     return targetMembers
-  }
-
-  /**
-   * メンバーを招集履歴に記録する
-   * @param {Members} members 記録対象のメンバー一覧
-   * @param {boolean} shouldFlush 記録する前にこれまでの記録を削除するか否か
-   */
-  private async recordHistory(members: Members, shouldFlush = false): Promise<void> {
-    if (shouldFlush) {
-      await this.historyMemberRepository.flush()
-    }
-    this.historyMemberRepository.add(members)
   }
 }

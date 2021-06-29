@@ -36,6 +36,7 @@ export class SlackNotifier implements Notifier {
 
       this.client.chat.postMessage({
         channel: this.channel,
+        mrkdwn: true,
         text,
       })
     } catch (e) {

@@ -1,39 +1,20 @@
 import * as functions from 'firebase-functions'
-import fs from 'fs'
+import admin from 'firebase-admin'
 import { App as SlackApp, ExpressReceiver } from '@slack/bolt'
-import { WebClient, LogLevel } from '@slack/web-api'
+import { WebClient } from '@slack/web-api'
 import { App } from './app'
 import { SlackNotifier } from './services'
-import { FileMemberRepository, MembersData } from './repositories'
+import { FireStoreMemberRepository } from './repositories'
 
 const config = functions.config()
 
-const BASE_DATA_DIR = '/tmp'
-const CURRENT_MEMBERS_DATA_PATH = `${BASE_DATA_DIR}/current-members.json`
-const HISTORY_MEMBERS_DATA_PATH = `${BASE_DATA_DIR}/history-members.json`
-
-const initialize = (): void => {
-  const initialData = JSON.stringify({ members: [] } as MembersData)
-
-  if (!fs.existsSync(CURRENT_MEMBERS_DATA_PATH)) {
-    fs.writeFileSync(CURRENT_MEMBERS_DATA_PATH, initialData)
-  }
-  if (!fs.existsSync(HISTORY_MEMBERS_DATA_PATH)) {
-    fs.writeFileSync(HISTORY_MEMBERS_DATA_PATH, initialData)
-  }
-}
-
 const createApp = (): App => {
-  const currentMemberRepository = new FileMemberRepository({
-    filePath: CURRENT_MEMBERS_DATA_PATH,
-  })
-  const historyMemberRepository = new FileMemberRepository({
-    filePath: HISTORY_MEMBERS_DATA_PATH,
-  })
+  admin.initializeApp()
+  const client = admin.firestore()
+  const currentMemberRepository = new FireStoreMemberRepository('current', client)
+  const historyMemberRepository = new FireStoreMemberRepository('history', client)
 
-  const slackClient = new WebClient(config.slack.bot_token, {
-    logLevel: LogLevel.DEBUG,
-  })
+  const slackClient = new WebClient(config.slack.bot_token)
   const notifier = new SlackNotifier({ channel: config.slack.target_channel, client: slackClient })
 
   return new App({
@@ -44,8 +25,6 @@ const createApp = (): App => {
     notifier,
   })
 }
-
-initialize()
 
 const app = createApp()
 
@@ -78,7 +57,7 @@ slackApp.command('/atsumeruman-list', async ({ ack }) => {
 export const command = functions.https.onRequest(receiver.app)
 
 export const cron = functions.pubsub
-  .schedule('every 1 minutes')
+  .schedule('0 15 * * *')
   .timeZone('Asia/Tokyo')
   .onRun(async () => {
     await app.gather()

@@ -1,2 +1,2 @@
 export { MemberRepository, MemberRepositoryHandleError } from './member-repository'
-export { FileMemberRepository, MembersData } from './file-member-repository'
+export { FireStoreMemberRepository } from './firestore-member-repository'

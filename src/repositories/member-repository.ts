@@ -9,5 +9,4 @@ export type MemberRepository = {
   add(members: Members): Promise<void>
   remove(member: Member): Promise<void>
   remove(members: Members): Promise<void>
-  flush(): Promise<void>
 }

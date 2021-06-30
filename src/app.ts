@@ -6,26 +6,26 @@ export class DuplicatedMemberError extends Error {}
 export class NotFoundMemberError extends Error {}
 
 export class App {
-  private readonly urlToGather: string
+  private readonly videoChatURL: string
   private readonly numberOfTarget: number
   private readonly currentMemberRepository: MemberRepository
   private readonly historyMemberRepository: MemberRepository
   private readonly notifier: Notifier
 
   constructor({
-    urlToGather,
+    videoChatURL,
     numberOfTarget,
     currentMemberRepository,
     historyMemberRepository,
     notifier,
   }: {
-    urlToGather: string
+    videoChatURL: string
     numberOfTarget: number
     currentMemberRepository: MemberRepository
     historyMemberRepository: MemberRepository
     notifier: Notifier
   }) {
-    this.urlToGather = urlToGather
+    this.videoChatURL = videoChatURL
     this.numberOfTarget = numberOfTarget
     this.currentMemberRepository = currentMemberRepository
     this.historyMemberRepository = historyMemberRepository
@@ -40,17 +40,17 @@ export class App {
       const targetMembers = await this.pickMembers(this.numberOfTarget)
       if (targetMembers.length === 0) return
 
-      const message = `ｱﾂﾏﾚｰ\n${this.urlToGather}`
+      const message = `ｻﾞﾂﾀﾞﾝ ﾀﾞﾖ\nｱﾂﾏﾚｰ :clap:\n${this.videoChatURL}`
       await this.notifier.notify(message, targetMembers)
     } catch (e) {
       console.warn(e)
 
       if (e instanceof MemberRepositoryHandleError) {
-        this.notifier.notify('ﾒﾝﾊﾞｰ ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ ｼﾏｼﾀ !!')
+        this.notifier.notify('ﾒﾝﾊﾞｰ ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ :innocent:')
       } else if (e instanceof NotifierHandleError) {
-        this.notifier.notify('ﾂｳﾁ ｻｰﾋﾞｽ ﾄﾉ ｾﾂｿﾞｸ ﾆ ﾓﾝﾀﾞｲ ｶﾞ ｱﾘﾏｽ !!')
+        this.notifier.notify('ﾂｳﾁ ｻｰﾋﾞｽ ﾄﾉ ｾﾂｿﾞｸ ﾆ ｼｯﾊﾟｲ :innocent:')
       } else {
-        this.notifier.notify('ﾓﾝﾀﾞｲｶﾞ ﾊｯｾｲ ｼﾏｼﾀ !!')
+        this.notifier.notify('ﾓﾝﾀﾞｲ ｶﾞ ﾊｯｾｲ :ladybug:')
       }
     }
   }
@@ -70,16 +70,16 @@ export class App {
       }
 
       await this.currentMemberRepository.add(member)
-      this.notifier.notify('ｻﾝｶ ｱﾘｶﾞﾄｳ !!', member)
+      this.notifier.notify('ｻﾝｶ ｱﾘｶﾞﾄ :tada:', member)
     } catch (e) {
       console.warn(e)
 
       if (e instanceof DuplicatedMemberError) {
-        this.notifier.notifySecretly('ｽﾃﾞﾆ ｻﾝｶｽﾞﾐ ﾃﾞｽ !!', member)
+        this.notifier.notifySecretly('ｻﾝｶ ｽﾞﾐ :+1:', member)
       } else if (e instanceof MemberRepositoryHandleError) {
-        this.notifier.notify('ﾒﾝﾊﾞｰ ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ ｼﾏｼﾀ !!')
+        this.notifier.notify('ﾒﾝﾊﾞｰ ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ :innocent:')
       } else {
-        this.notifier.notify('ﾓﾝﾀﾞｲｶﾞ ﾊｯｾｲ ｼﾏｼﾀ !!')
+        this.notifier.notify('ﾓﾝﾀﾞｲ ｶﾞ ﾊｯｾｲ :ladybug:')
       }
     }
   }
@@ -99,16 +99,16 @@ export class App {
       }
 
       await this.currentMemberRepository.remove(member)
-      this.notifier.notify('ﾏﾀﾈ !!', member)
+      this.notifier.notify('ﾊﾞｲﾊﾞｲ :wave:', member)
     } catch (e) {
       console.warn(e)
 
       if (e instanceof NotFoundMemberError) {
-        this.notifier.notifySecretly('ｻﾝｶ ｼﾃ ｲﾏｾﾝ !!', member)
+        this.notifier.notifySecretly('ｻﾝｶ ｼﾃ ｲﾅｲ :facepunch:', member)
       } else if (e instanceof MemberRepositoryHandleError) {
-        this.notifier.notify('ﾒﾝﾊﾞｰ ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ ｼﾏｼﾀ !!')
+        this.notifier.notify('ﾒﾝﾊﾞｰ ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ :innocent:')
       } else {
-        this.notifier.notify('ﾓﾝﾀﾞｲｶﾞ ﾊｯｾｲ ｼﾏｼﾀ !!')
+        this.notifier.notify('ﾓﾝﾀﾞｲ ｶﾞ ﾊｯｾｲ :ladybug:')
       }
     }
   }
@@ -122,9 +122,9 @@ export class App {
 
     if (members.length) {
       const membersString = [...members].map((member) => `• *${member.name}*`).join('\n')
-      message = `ﾒﾝﾊﾞｰ ｲﾁﾗﾝ ﾃﾞｽ !!\n${membersString}`
+      message = `ｻﾝｶ ｼﾃｲﾙ ﾋﾄ :point_down:\n${membersString}`
     } else {
-      message = 'ﾀﾞﾚﾓ ｻﾝｶ ｼﾃ ｲﾏｾﾝ !!'
+      message = 'ﾀﾞﾚﾓ ｻﾝｶ ｼﾃ ｲﾅｲ :anger:'
     }
 
     this.notifier.notify(message)
@@ -152,8 +152,6 @@ export class App {
     let targetMembers = currentMembers.remove(gatheredMembers)
     const numberOfMember = targetMembers.length
 
-    let shouldClear = false
-
     if (numberOfMember > numberOfTargetMember) {
       // 招集履歴に存在しないメンバーの数が取得人数を上回る場合、抽出したメンバーからさらにランダムに取得人数分だけ抽出する
       targetMembers = targetMembers.pickRandomized(numberOfTargetMember)
@@ -164,13 +162,9 @@ export class App {
         currentMembers.remove(targetMembers).pickRandomized(numberToAdd)
       )
       // 記録が埋まるので全記録をクリアする
-      shouldClear = true
-    }
-
-    if (shouldClear) {
-      // 全記録をクリア
       await this.historyMemberRepository.remove(gatheredMembers)
     }
+
     await this.historyMemberRepository.add(targetMembers)
 
     return targetMembers

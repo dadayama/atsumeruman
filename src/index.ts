@@ -1,12 +1,11 @@
-import * as functions from 'firebase-functions'
+import { https, pubsub } from 'firebase-functions'
 import admin from 'firebase-admin'
 import { App as SlackApp, ExpressReceiver } from '@slack/bolt'
 import { WebClient } from '@slack/web-api'
+import * as config from './config'
 import { App } from './app'
 import { SlackNotifier } from './services'
 import { FireStoreMemberRepository } from './repositories'
-
-const config = functions.config()
 
 const createApp = (): App => {
   admin.initializeApp()
@@ -14,12 +13,12 @@ const createApp = (): App => {
   const currentMemberRepository = new FireStoreMemberRepository('current', client)
   const historyMemberRepository = new FireStoreMemberRepository('history', client)
 
-  const slackClient = new WebClient(config.slack.bot_token)
-  const notifier = new SlackNotifier({ channel: config.slack.target_channel, client: slackClient })
+  const slackClient = new WebClient(config.SLACK_BOT_TOKEN)
+  const notifier = new SlackNotifier({ channel: config.SLACK_TARGET_CHANNEL, client: slackClient })
 
   return new App({
-    numberOfTarget: config.general.number_of_target,
-    urlToGather: config.general.video_chat_url,
+    numberOfTarget: config.NUMBER_OF_TARGET,
+    videoChatURL: config.VIDEO_CHAT_URL,
     currentMemberRepository,
     historyMemberRepository,
     notifier,
@@ -29,13 +28,13 @@ const createApp = (): App => {
 const app = createApp()
 
 const receiver = new ExpressReceiver({
-  signingSecret: config.slack.signing_secret,
+  signingSecret: config.SLACK_SIGNING_SECRET,
   endpoints: '/',
   processBeforeResponse: true,
 })
 const slackApp = new SlackApp({
   receiver,
-  token: config.slack.bot_token,
+  token: config.SLACK_BOT_TOKEN,
   processBeforeResponse: true,
 })
 
@@ -54,12 +53,65 @@ slackApp.command('/atsumeruman-list', async ({ ack }) => {
   await app.listJoinedMembers()
 })
 
-export const command = functions.https.onRequest(receiver.app)
+export const command = https.onRequest(receiver.app)
 
-export const cron = functions.pubsub
+export const cron = pubsub
   .schedule('0 15 * * *')
   .timeZone('Asia/Tokyo')
   .onRun(async () => {
     await app.gather()
     return null
   })
+
+// ローカル開発時にデバッグできるよう、HTTP経由でのアクセスを可能にしておく
+if (config.IS_DEBUG_MODE) {
+  receiver.app.get('/join', async (req, res) => {
+    const {
+      query: { user_id: userId, user_name: userName },
+    } = req
+    if (typeof userId !== 'string' || typeof userName !== 'string') {
+      res.sendStatus(400)
+    }
+
+    try {
+      await app.joinMember(userId as string, userName as string)
+      res.sendStatus(201)
+    } catch (e) {
+      res.sendStatus(500)
+    }
+  })
+
+  receiver.app.get('/leave', async (req, res) => {
+    const {
+      query: { user_id: userId, user_name: userName },
+    } = req
+    if (typeof userId !== 'string' || typeof userName !== 'string') {
+      res.sendStatus(400)
+    }
+
+    try {
+      await app.leaveMember(userId as string, userName as string)
+      res.sendStatus(204)
+    } catch (e) {
+      res.sendStatus(500)
+    }
+  })
+
+  receiver.app.get('/list', async (_, res) => {
+    try {
+      await app.listJoinedMembers()
+      res.sendStatus(200)
+    } catch (e) {
+      res.sendStatus(500)
+    }
+  })
+
+  receiver.app.get('/gather', async (_, res) => {
+    try {
+      await app.gather()
+      res.sendStatus(200)
+    } catch (e) {
+      res.sendStatus(500)
+    }
+  })
+}

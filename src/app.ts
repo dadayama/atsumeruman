@@ -40,7 +40,7 @@ export class App {
       const targetMembers = await this.pickMembers(this.numberOfTarget)
       if (targetMembers.length === 0) return
 
-      const message = `ｻﾞﾂﾀﾞﾝ ﾀﾞﾖ\nｱﾂﾏﾚｰ :clap:\n${this.videoChatURL}`
+      const message = `ｻﾞﾂﾀﾞﾝ ﾉ ｼﾞｶﾝ ﾀﾞﾖ\nｱﾂﾏﾚｰ :clap:\n${this.videoChatURL}`
       await this.notifier.notify(message, targetMembers)
     } catch (e) {
       console.warn(e)

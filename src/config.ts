@@ -15,8 +15,7 @@ const getConfigValue = (key: string) => {
   return value
 }
 
-// export const IS_DEBUG_MODE = env !== 'production'
-export const IS_DEBUG_MODE = true
+export const IS_DEBUG_MODE = env !== 'production'
 export const NUMBER_OF_TARGET = getConfigValue('general.number_of_target')
 export const VIDEO_CHAT_URL = getConfigValue('general.video_chat_url')
 export const SLACK_SIGNING_SECRET = getConfigValue('slack.signing_secret')

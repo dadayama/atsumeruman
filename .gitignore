@@ -12,6 +12,7 @@ node_modules/
 *.log
 
 # Firebase config
+.firebaserc
 .runtimeconfig.json
 
 # Config

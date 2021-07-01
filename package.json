@@ -23,7 +23,9 @@
     "deploy:functions": "firebase deploy --only functions",
     "deploy:hosting": "firebase deploy --only hosting",
     "logs": "firebase functions:log",
-    "test": "jest"
+    "test": "jest",
+    "config:set": "node ./scripts/set-config.js",
+    "config:get": "firebase functions:config:get > ./config/default.json"
   },
   "dependencies": {
     "@slack/bolt": "^3.4.0",

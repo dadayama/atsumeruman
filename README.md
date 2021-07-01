@@ -99,5 +99,6 @@ $ npm run deploy
 
 1. Type the slash command.
    - `/atsumeruman-join`: Will be randomly notified when the chat starts.
-   - `/atsumeruman-join`: Will no longer be notified when the chat starts.
+   - `/atsumeruman-leave`: Will no longer be notified when the chat starts.
    - `/atsumeruman-list`: Displays the list of members to be notified.
+2. Wait for a notification on Slack to start chatting.

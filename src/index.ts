@@ -9,9 +9,15 @@ import { FireStoreMemberRepository } from './repositories'
 
 const createApp = (): App => {
   admin.initializeApp()
-  const client = admin.firestore()
-  const currentMemberRepository = new FireStoreMemberRepository('current', client)
-  const historyMemberRepository = new FireStoreMemberRepository('history', client)
+  const fireStoreClient = admin.firestore()
+  const currentMemberRepository = new FireStoreMemberRepository({
+    collectionName: config.FIRESTORE_CURRENT_MEMBERS_COLLECTION_NAME,
+    client: fireStoreClient,
+  })
+  const historyMemberRepository = new FireStoreMemberRepository({
+    collectionName: config.FIRESTORE_HISTORY_MEMBERS_COLLECTION_NAME,
+    client: fireStoreClient,
+  })
 
   const slackClient = new WebClient(config.SLACK_BOT_TOKEN)
   const notifier = new SlackNotifier({ channel: config.SLACK_TARGET_CHANNEL, client: slackClient })

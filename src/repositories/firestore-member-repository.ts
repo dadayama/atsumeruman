@@ -3,10 +3,13 @@ import { Member, Members } from '../entities'
 import { MemberRepository, MemberRepositoryHandleError } from './member-repository'
 
 export class FireStoreMemberRepository implements MemberRepository {
-  constructor(
-    private readonly collectionName: string,
-    private readonly client: firestore.Firestore
-  ) {}
+  private readonly collectionName: string
+  private readonly client: firestore.Firestore
+
+  constructor({ collectionName, client }: { collectionName: string; client: firestore.Firestore }) {
+    this.collectionName = collectionName
+    this.client = client
+  }
 
   async getAll(): Promise<Members> {
     try {

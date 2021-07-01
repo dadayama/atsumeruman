@@ -122,7 +122,7 @@ export class App {
 
     if (members.length) {
       const membersString = [...members].map((member) => `• *${member.name}*`).join('\n')
-      message = `ｻﾝｶ ｼﾃｲﾙ ﾋﾄ :point_down:\n${membersString}`
+      message = `ｻﾝｶ ｼﾃｲﾙ ﾋﾄ ﾊ ${members.length} ﾆﾝ ﾃﾞｽ :point_down:\n${membersString}`
     } else {
       message = 'ﾀﾞﾚﾓ ｻﾝｶ ｼﾃ ｲﾅｲ :anger:'
     }

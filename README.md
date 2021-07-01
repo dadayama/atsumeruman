@@ -21,21 +21,15 @@ $ npm install
 $ npm install -g firebase-tools
 ```
 
-### Slack
+### Slack (1)
 
 1. Access the [Slack apps page](https://api.slack.com/apps) and create a bot user.
 2. Get the **Client Secret**, **Signing Secret**, and **Bot User OAuth Token**
-3. Set the slash commands.
-   - Request URL: Firebase 'Command' function URL (e.g. `https://us-central1-${Project ID}.cloudfunctions.net/command`)
-   - Commands:
-     - `/atsumeruman-join`
-     - `/atsumeruman-join`
-     - `/atsumeruman-list`
-4. Invite the bot user to the target channel.
+3. Invite the bot user to the target channel.
 
 ### Firebase
 
-1. Access the [Firebase console screen](https://console.firebase.google.com/) and create a project.
+1. Access the [Firebase console](https://console.firebase.google.com/) and create a project.
 2. Set the default GCP resource location. (Without it, the function will fail to deploy.)
 3. Login to firebase using the CLI and select the project you just created.
 
@@ -94,6 +88,16 @@ $ npm run config:set
 ```
 $ npm run deploy
 ```
+
+### Slack (2)
+
+1. Access the bot user setting page.
+2. Set the slash commands.
+   - Request URL: Firebase 'Command' function URL (e.g. `https://us-central1-${Project ID}.cloudfunctions.net/command`)
+   - Commands:
+     - `/atsumeruman-join`
+     - `/atsumeruman-leave`
+     - `/atsumeruman-list`
 
 ## Usage
 

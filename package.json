@@ -24,13 +24,13 @@
     "deploy:hosting": "firebase deploy --only hosting",
     "logs": "firebase functions:log",
     "test": "jest",
-    "config:set": "node ./scripts/set-config.js",
-    "config:get": "firebase functions:config:get > ./config/default.json"
+    "config:set": "ts-node ./scripts/set-config.ts",
+    "config:load": "firebase functions:config:get > ./.runtimeconfig.json",
+    "config:show": "firebase functions:config:get"
   },
   "dependencies": {
     "@slack/bolt": "^3.4.0",
     "@slack/web-api": "^6.2.4",
-    "config": "^3.3.6",
     "express": "^4.17.1",
     "firebase-admin": "^9.10.0",
     "firebase-functions": "^3.14.1",
@@ -50,6 +50,7 @@
     "jest": "^27.0.5",
     "prettier": "^2.3.1",
     "ts-jest": "^27.0.3",
+    "ts-node": "^10.0.0",
     "tsc-watch": "^4.4.0",
     "typescript": "^3.8.0"
   },

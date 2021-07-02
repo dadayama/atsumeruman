@@ -14,6 +14,3 @@ node_modules/
 # Firebase config
 .firebaserc
 .runtimeconfig.json
-
-# Config
-config

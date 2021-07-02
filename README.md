@@ -31,26 +31,19 @@ $ npm install -g firebase-tools
 
 1. Access the [Firebase console](https://console.firebase.google.com/) and create a project.
 2. Set the default GCP resource location. (Without it, the function will fail to deploy.)
-3. Login to firebase using the CLI and select the project you just created.
+3. Switch firestore mode to native mode.
+4. Activate the Cloud Filestore API.
+5. Login to firebase using the CLI and select the project you just created.
 
 ```
 $ firebase login
 $ firebase use ${Firebase project ID}
 ```
 
-4. Create a `config` directory and create a `default.json` file.
+6. Describe the necessary settings in `.runtimeconfig.json`.
 
 ```
-$ mkdir config
-$ touch config/default.json
-```
-
-5. Describe the necessary settings in `default.json`.
-
-```
-$ vi config/default.json
-
-// config/default.json
+$ vi .runtimeconfig.json
 {
   "general": {
     "video_chat_url": "Some video chat url (e.g. Google meet URL)",
@@ -77,13 +70,13 @@ $ vi config/default.json
 }
 ```
 
-6. Reflect the settings in firebase.
+7. Reflect the settings in firebase.
 
 ```
 $ npm run config:set
 ```
 
-7. Deploy application.
+8. Deploy application.
 
 ```
 $ npm run deploy

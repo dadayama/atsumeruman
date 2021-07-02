@@ -83,7 +83,7 @@ if (config.IS_DEBUG_MODE) {
       await app.joinMember(userId as string, userName as string)
       res.sendStatus(201)
     } catch (e) {
-      res.sendStatus(500)
+      res.status(500).json(e.message)
     }
   })
 
@@ -99,7 +99,7 @@ if (config.IS_DEBUG_MODE) {
       await app.leaveMember(userId as string, userName as string)
       res.sendStatus(204)
     } catch (e) {
-      res.sendStatus(500)
+      res.status(500).json(e.message)
     }
   })
 
@@ -108,7 +108,7 @@ if (config.IS_DEBUG_MODE) {
       await app.listJoinedMembers()
       res.sendStatus(200)
     } catch (e) {
-      res.sendStatus(500)
+      res.status(500).json(e.message)
     }
   })
 
@@ -117,7 +117,7 @@ if (config.IS_DEBUG_MODE) {
       await app.gather()
       res.sendStatus(200)
     } catch (e) {
-      res.sendStatus(500)
+      res.status(500).json(e.message)
     }
   })
 }

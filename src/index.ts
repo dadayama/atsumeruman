@@ -88,9 +88,9 @@ slackApp.command('/atsumeruman-list', async ({ ack, say }) => {
   try {
     const members = await atsumeruMan.getAddedMembersList()
 
-    if (members.length) {
+    if (members.count) {
       const membersListString = [...members].map(({ name }) => `• *${name}*`).join('\n')
-      say(`ｻﾝｶ ｼﾃｲﾙ ﾋﾄ ﾊ **${members.length}** ﾆﾝ ﾃﾞｽ :point_down:\n${membersListString}`)
+      say(`ｻﾝｶ ｼﾃｲﾙ ﾋﾄ ﾊ **${members.count}** ﾆﾝ ﾃﾞｽ :point_down:\n${membersListString}`)
     } else {
       say('ﾀﾞﾚﾓ ｻﾝｶ ｼﾃ ｲﾅｲ :anger:')
     }
@@ -113,7 +113,7 @@ export const gather = pubsub
   .onRun(async () => {
     try {
       const members = await atsumeruMan.pickMembers(config.NUMBER_OF_TARGET)
-      if (members.length === 0) return
+      if (members.count === 0) return
 
       const message = `ｻﾞﾂﾀﾞﾝ ﾉ ｼﾞｶﾝ ﾀﾞﾖ\nｱﾂﾏﾚｰ :clap:\n${config.VIDEO_CHAT_URL}`
       await notifier.notify(message, members)

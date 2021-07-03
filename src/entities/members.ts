@@ -7,7 +7,7 @@ export class Members {
     yield* this.members
   }
 
-  get length(): number {
+  get count(): number {
     return this.members.length
   }
 
@@ -32,9 +32,10 @@ export class Members {
 
     const randomized = []
     const members = [...this.members]
+    const membersLength = this.members.length
 
     for (let i = 0; i < numberOfMember; i++) {
-      const index = Math.floor(Math.random() * members.length)
+      const index = Math.floor(Math.random() * membersLength)
       randomized[i] = members[index]
       members.splice(index, 1)
     }

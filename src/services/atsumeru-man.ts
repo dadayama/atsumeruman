@@ -69,7 +69,7 @@ export class AtsumeruMan {
 
     // 現在のメンバー一覧から、招集履歴に存在しないメンバーのみを抽出する
     let targetMembers = currentMembers.remove(gatheredMembers)
-    const numberOfMember = targetMembers.length
+    const numberOfMember = targetMembers.count
 
     if (numberOfMember > numberOfTargetMember) {
       // 招集履歴に存在しないメンバーの数が取得人数を上回る場合、抽出したメンバーからさらにランダムに取得人数分だけ抽出する

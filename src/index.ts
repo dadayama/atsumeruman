@@ -62,7 +62,7 @@ slackApp.command('/atsumeruman-list', async ({ ack }) => {
 export const command = https.onRequest(receiver.app)
 
 export const cron = pubsub
-  .schedule('0 15 * * *')
+  .schedule(config.FUNCTIONS_CRON_SCHEDULE)
   .timeZone('Asia/Tokyo')
   .onRun(async () => {
     await app.gather()

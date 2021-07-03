@@ -90,7 +90,10 @@ slackApp.command('/atsumeruman-list', async ({ ack, say }) => {
 
     if (members.count) {
       const membersListString = [...members].map(({ name }) => `• *${name}*`).join('\n')
-      say(`ｻﾝｶ ｼﾃｲﾙ ﾋﾄ ﾊ **${members.count}** ﾆﾝ ﾃﾞｽ :point_down:\n${membersListString}`)
+      say({
+        text: `ｻﾝｶ ｼﾃｲﾙ ﾋﾄ ﾊ *${members.count}* ﾆﾝ ﾃﾞｽ :point_down:\n${membersListString}`,
+        mrkdwn: true,
+      })
     } else {
       say('ﾀﾞﾚﾓ ｻﾝｶ ｼﾃ ｲﾅｲ :anger:')
     }

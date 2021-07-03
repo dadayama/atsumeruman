@@ -86,11 +86,11 @@ slackApp.command('/atsumeruman-list', async ({ ack, say }) => {
   ack()
 
   try {
-    const membersList = await atsumeruMan.getAddedMembersList()
+    const members = await atsumeruMan.getAddedMembersList()
 
-    if (membersList.length) {
-      const membersListString = membersList.map(({ name }) => `• *${name}*`).join('\n')
-      say(`ｻﾝｶ ｼﾃｲﾙ ﾋﾄ ﾊ ${membersList.length} ﾆﾝ ﾃﾞｽ :point_down:\n${membersListString}`)
+    if (members.length) {
+      const membersListString = [...members].map(({ name }) => `• *${name}*`).join('\n')
+      say(`ｻﾝｶ ｼﾃｲﾙ ﾋﾄ ﾊ **${members.length}** ﾆﾝ ﾃﾞｽ :point_down:\n${membersListString}`)
     } else {
       say('ﾀﾞﾚﾓ ｻﾝｶ ｼﾃ ｲﾅｲ :anger:')
     }

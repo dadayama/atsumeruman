@@ -54,9 +54,8 @@ export class AtsumeruMan {
   /**
    * 招集対象メンバー一覧を取得する
    */
-  async getAddedMembersList(): Promise<{ id: string; name: string }[]> {
-    const members = await this.currentMemberRepository.getAll()
-    return [...members].map(({ id, name }) => ({ id, name }))
+  async getAddedMembersList(): Promise<Members> {
+    return await this.currentMemberRepository.getAll()
   }
 
   /**

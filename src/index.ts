@@ -2,9 +2,9 @@ import { https, pubsub } from 'firebase-functions'
 import admin from 'firebase-admin'
 import { App as SlackApp, ExpressReceiver } from '@slack/bolt'
 import * as config from './config'
-import { App } from './app'
-import { SlackNotifier } from './services'
-import { FireStoreMemberRepository } from './repositories'
+import { App, DuplicatedMemberError, NotFoundMemberError } from './app'
+import { SlackNotifier, NotifierHandleError } from './services'
+import { FireStoreMemberRepository, MemberRepositoryHandleError } from './repositories'
 
 const receiver = new ExpressReceiver({
   signingSecret: config.SLACK_SIGNING_SECRET,
@@ -17,108 +17,116 @@ const slackApp = new SlackApp({
   processBeforeResponse: true,
 })
 
-const createApp = (): App => {
-  admin.initializeApp()
-  const fireStoreClient = admin.firestore()
-  const currentMemberRepository = new FireStoreMemberRepository({
-    collectionName: config.FIRESTORE_CURRENT_MEMBERS_COLLECTION_NAME,
-    client: fireStoreClient,
-  })
-  const historyMemberRepository = new FireStoreMemberRepository({
-    collectionName: config.FIRESTORE_HISTORY_MEMBERS_COLLECTION_NAME,
-    client: fireStoreClient,
-  })
-
-  const notifier = new SlackNotifier({
-    channel: config.SLACK_TARGET_CHANNEL,
-    client: slackApp.client,
-  })
-
-  return new App({
-    numberOfTarget: config.NUMBER_OF_TARGET,
-    videoChatURL: config.VIDEO_CHAT_URL,
-    currentMemberRepository,
-    historyMemberRepository,
-    notifier,
-  })
-}
-
-const app = createApp()
-
-slackApp.command('/atsumeruman-join', async ({ command, ack }) => {
-  ack()
-  await app.joinMember(command.user_id, command.user_name)
+admin.initializeApp()
+const fireStoreClient = admin.firestore()
+const currentMemberRepository = new FireStoreMemberRepository({
+  collectionName: config.FIRESTORE_CURRENT_MEMBERS_COLLECTION_NAME,
+  client: fireStoreClient,
+})
+const historyMemberRepository = new FireStoreMemberRepository({
+  collectionName: config.FIRESTORE_HISTORY_MEMBERS_COLLECTION_NAME,
+  client: fireStoreClient,
 })
 
-slackApp.command('/atsumeruman-leave', async ({ command, ack }) => {
-  ack()
-  await app.leaveMember(command.user_id, command.user_name)
+const notifier = new SlackNotifier({
+  channel: config.SLACK_TARGET_CHANNEL,
+  client: slackApp.client,
 })
 
-slackApp.command('/atsumeruman-list', async ({ ack }) => {
+const app = new App({
+  currentMemberRepository,
+  historyMemberRepository,
+})
+
+slackApp.command(
+  '/atsumeruman-join',
+  async ({ command: { user_id: userId, user_name: userName }, ack, say, respond }) => {
+    ack()
+
+    try {
+      await app.addMember(userId, userName)
+      say(`<@${userId}>\nｻﾝｶ ｱﾘｶﾞﾄ :tada:`)
+    } catch (e) {
+      console.warn(e)
+
+      if (e instanceof DuplicatedMemberError) {
+        respond('ｻﾝｶ ｽﾞﾐ :+1:')
+      } else if (e instanceof MemberRepositoryHandleError) {
+        say('ﾒﾝﾊﾞｰ ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ :innocent:')
+      } else {
+        say('ﾓﾝﾀﾞｲ ｶﾞ ﾊｯｾｲ :ladybug:')
+      }
+    }
+  }
+)
+
+slackApp.command(
+  '/atsumeruman-leave',
+  async ({ command: { user_id: userId, user_name: userName }, ack, say, respond }) => {
+    ack()
+
+    try {
+      await app.removeMember(userId, userName)
+      say(`<@${userId}>\nﾊﾞｲﾊﾞｲ :wave:`)
+    } catch (e) {
+      console.warn(e)
+
+      if (e instanceof NotFoundMemberError) {
+        respond('ｻﾝｶ ｼﾃ ｲﾅｲ :facepunch:')
+      } else if (e instanceof MemberRepositoryHandleError) {
+        say('ﾒﾝﾊﾞｰ ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ :innocent:')
+      } else {
+        say('ﾓﾝﾀﾞｲ ｶﾞ ﾊｯｾｲ :ladybug:')
+      }
+    }
+  }
+)
+
+slackApp.command('/atsumeruman-list', async ({ ack, say }) => {
   ack()
-  await app.listJoinedMembers()
+
+  try {
+    const membersList = await app.getAddedMembersList()
+
+    if (membersList.length) {
+      const membersListString = membersList.map(({ name }) => `• *${name}*`).join('\n')
+      say(`ｻﾝｶ ｼﾃｲﾙ ﾋﾄ ﾊ ${membersList.length} ﾆﾝ ﾃﾞｽ :point_down:\n${membersListString}`)
+    } else {
+      say('ﾀﾞﾚﾓ ｻﾝｶ ｼﾃ ｲﾅｲ :anger:')
+    }
+  } catch (e) {
+    console.warn(e)
+
+    if (e instanceof MemberRepositoryHandleError) {
+      say('ﾒﾝﾊﾞｰ ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ :innocent:')
+    } else {
+      say('ﾓﾝﾀﾞｲ ｶﾞ ﾊｯｾｲ :ladybug:')
+    }
+  }
 })
 
 export const command = https.onRequest(receiver.app)
 
-export const cron = pubsub
+export const gather = pubsub
   .schedule(config.FUNCTIONS_CRON_SCHEDULE)
   .timeZone('Asia/Tokyo')
   .onRun(async () => {
-    await app.gather()
+    try {
+      const members = await app.pickMembers(config.NUMBER_OF_TARGET)
+      if (members.length === 0) return
+
+      const message = `ｻﾞﾂﾀﾞﾝ ﾉ ｼﾞｶﾝ ﾀﾞﾖ\nｱﾂﾏﾚｰ :clap:\n${config.VIDEO_CHAT_URL}`
+      await notifier.notify(message, members)
+    } catch (e) {
+      console.warn(e)
+
+      if (e instanceof MemberRepositoryHandleError) {
+        notifier.notify('ﾒﾝﾊﾞｰ ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ :innocent:')
+      } else if (e instanceof NotifierHandleError) {
+        notifier.notify('ﾂｳﾁ ｻｰﾋﾞｽ ﾄﾉ ｾﾂｿﾞｸ ﾆ ｼｯﾊﾟｲ :innocent:')
+      } else {
+        notifier.notify('ﾓﾝﾀﾞｲ ｶﾞ ﾊｯｾｲ :ladybug:')
+      }
+    }
     return null
   })
-
-// ローカル開発時にデバッグできるよう、HTTP経由でのアクセスを可能にしておく
-if (config.IS_DEBUG_MODE) {
-  receiver.app.get('/join', async (req, res) => {
-    const {
-      query: { user_id: userId, user_name: userName },
-    } = req
-    if (typeof userId !== 'string' || typeof userName !== 'string') {
-      res.sendStatus(400)
-    }
-
-    try {
-      await app.joinMember(userId as string, userName as string)
-      res.sendStatus(201)
-    } catch (e) {
-      res.status(500).json(e.message)
-    }
-  })
-
-  receiver.app.get('/leave', async (req, res) => {
-    const {
-      query: { user_id: userId, user_name: userName },
-    } = req
-    if (typeof userId !== 'string' || typeof userName !== 'string') {
-      res.sendStatus(400)
-    }
-
-    try {
-      await app.leaveMember(userId as string, userName as string)
-      res.sendStatus(204)
-    } catch (e) {
-      res.status(500).json(e.message)
-    }
-  })
-
-  receiver.app.get('/list', async (_, res) => {
-    try {
-      await app.listJoinedMembers()
-      res.sendStatus(200)
-    } catch (e) {
-      res.status(500).json(e.message)
-    }
-  })
-
-  receiver.app.get('/gather', async (_, res) => {
-    try {
-      await app.gather()
-      res.sendStatus(200)
-    } catch (e) {
-      res.status(500).json(e.message)
-    }
-  })
-}

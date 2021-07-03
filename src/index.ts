@@ -1,11 +1,21 @@
 import { https, pubsub } from 'firebase-functions'
 import admin from 'firebase-admin'
 import { App as SlackApp, ExpressReceiver } from '@slack/bolt'
-import { WebClient } from '@slack/web-api'
 import * as config from './config'
 import { App } from './app'
 import { SlackNotifier } from './services'
 import { FireStoreMemberRepository } from './repositories'
+
+const receiver = new ExpressReceiver({
+  signingSecret: config.SLACK_SIGNING_SECRET,
+  endpoints: '/',
+  processBeforeResponse: true,
+})
+const slackApp = new SlackApp({
+  receiver,
+  token: config.SLACK_BOT_TOKEN,
+  processBeforeResponse: true,
+})
 
 const createApp = (): App => {
   admin.initializeApp()
@@ -19,8 +29,10 @@ const createApp = (): App => {
     client: fireStoreClient,
   })
 
-  const slackClient = new WebClient(config.SLACK_BOT_TOKEN)
-  const notifier = new SlackNotifier({ channel: config.SLACK_TARGET_CHANNEL, client: slackClient })
+  const notifier = new SlackNotifier({
+    channel: config.SLACK_TARGET_CHANNEL,
+    client: slackApp.client,
+  })
 
   return new App({
     numberOfTarget: config.NUMBER_OF_TARGET,
@@ -32,17 +44,6 @@ const createApp = (): App => {
 }
 
 const app = createApp()
-
-const receiver = new ExpressReceiver({
-  signingSecret: config.SLACK_SIGNING_SECRET,
-  endpoints: '/',
-  processBeforeResponse: true,
-})
-const slackApp = new SlackApp({
-  receiver,
-  token: config.SLACK_BOT_TOKEN,
-  processBeforeResponse: true,
-})
 
 slackApp.command('/atsumeruman-join', async ({ command, ack }) => {
   ack()

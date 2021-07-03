@@ -1,10 +1,10 @@
-import { Member, Members } from './entities'
-import { MemberRepository } from './repositories'
+import { Member, Members } from '../entities'
+import { MemberRepository } from '../repositories'
 
 export class DuplicatedMemberError extends Error {}
 export class NotFoundMemberError extends Error {}
 
-export class App {
+export class AtsumeruMan {
   private readonly currentMemberRepository: MemberRepository
   private readonly historyMemberRepository: MemberRepository
 

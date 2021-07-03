@@ -2,7 +2,7 @@ import { https, pubsub } from 'firebase-functions'
 import admin from 'firebase-admin'
 import { App as SlackApp, ExpressReceiver } from '@slack/bolt'
 import * as config from './config'
-import { App, DuplicatedMemberError, NotFoundMemberError } from './app'
+import { AtsumeruMan, DuplicatedMemberError, NotFoundMemberError } from './services/atsumeru-man'
 import { SlackNotifier, NotifierHandleError } from './services'
 import { FireStoreMemberRepository, MemberRepositoryHandleError } from './repositories'
 
@@ -33,7 +33,7 @@ const notifier = new SlackNotifier({
   client: slackApp.client,
 })
 
-const app = new App({
+const atsumeruMan = new AtsumeruMan({
   currentMemberRepository,
   historyMemberRepository,
 })
@@ -44,7 +44,7 @@ slackApp.command(
     ack()
 
     try {
-      await app.addMember(userId, userName)
+      await atsumeruMan.addMember(userId, userName)
       say(`<@${userId}>\nｻﾝｶ ｱﾘｶﾞﾄ :tada:`)
     } catch (e) {
       console.warn(e)
@@ -66,7 +66,7 @@ slackApp.command(
     ack()
 
     try {
-      await app.removeMember(userId, userName)
+      await atsumeruMan.removeMember(userId, userName)
       say(`<@${userId}>\nﾊﾞｲﾊﾞｲ :wave:`)
     } catch (e) {
       console.warn(e)
@@ -86,7 +86,7 @@ slackApp.command('/atsumeruman-list', async ({ ack, say }) => {
   ack()
 
   try {
-    const membersList = await app.getAddedMembersList()
+    const membersList = await atsumeruMan.getAddedMembersList()
 
     if (membersList.length) {
       const membersListString = membersList.map(({ name }) => `• *${name}*`).join('\n')
@@ -112,7 +112,7 @@ export const gather = pubsub
   .timeZone('Asia/Tokyo')
   .onRun(async () => {
     try {
-      const members = await app.pickMembers(config.NUMBER_OF_TARGET)
+      const members = await atsumeruMan.pickMembers(config.NUMBER_OF_TARGET)
       if (members.length === 0) return
 
       const message = `ｻﾞﾂﾀﾞﾝ ﾉ ｼﾞｶﾝ ﾀﾞﾖ\nｱﾂﾏﾚｰ :clap:\n${config.VIDEO_CHAT_URL}`

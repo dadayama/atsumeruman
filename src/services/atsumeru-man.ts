@@ -4,6 +4,9 @@ import { MemberRepository } from '../repositories'
 export class DuplicatedMemberError extends Error {}
 export class NotFoundMemberError extends Error {}
 
+/**
+ * 雑談の招集対象を管理する
+ */
 export class AtsumeruMan {
   private readonly currentMemberRepository: MemberRepository
   private readonly historyMemberRepository: MemberRepository

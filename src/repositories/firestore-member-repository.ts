@@ -2,6 +2,25 @@ import { firestore } from 'firebase-admin'
 import { Member, Members } from '../entities'
 import { MemberRepository, MemberRepositoryHandleError } from './member-repository'
 
+type MemberDoc = {
+  name: string
+}
+
+function assertMemberDoc(data: firestore.DocumentData): asserts data is MemberDoc {
+  if (typeof data?.name !== 'string') {
+    throw new Error('Data is not a Member type.')
+  }
+}
+
+const memberDocConverter: firestore.FirestoreDataConverter<MemberDoc> = {
+  fromFirestore(snapShot: firestore.QueryDocumentSnapshot): MemberDoc {
+    const data = snapShot.data()
+    assertMemberDoc(data)
+    return data
+  },
+  toFirestore: (data: MemberDoc) => data,
+}
+
 export class FireStoreMemberRepository implements MemberRepository {
   private readonly collectionName: string
   private readonly client: firestore.Firestore
@@ -14,7 +33,10 @@ export class FireStoreMemberRepository implements MemberRepository {
   async getAll(): Promise<Members> {
     try {
       const args: Member[] = []
-      const snapShot = await this.client.collection(this.collectionName).get()
+      const snapShot = await this.client
+        .collection(this.collectionName)
+        .withConverter(memberDocConverter)
+        .get()
       snapShot.forEach((doc) => {
         const { name } = doc.data()
         args.push(new Member(doc.id, name))
@@ -27,7 +49,11 @@ export class FireStoreMemberRepository implements MemberRepository {
 
   async findById(memberId: string): Promise<Member | undefined> {
     try {
-      const doc = await this.client.collection(this.collectionName).doc(memberId).get()
+      const doc = await this.client
+        .collection(this.collectionName)
+        .withConverter(memberDocConverter)
+        .doc(memberId)
+        .get()
       const data = doc.data()
       return data ? new Member(memberId, data.name) : undefined
     } catch (e) {
@@ -41,7 +67,10 @@ export class FireStoreMemberRepository implements MemberRepository {
       const _members = members instanceof Member ? [{ ...members }] : [...members]
 
       _members.forEach(({ id, name }) => {
-        const docRef = this.client.collection(this.collectionName).doc(id)
+        const docRef = this.client
+          .collection(this.collectionName)
+          .withConverter(memberDocConverter)
+          .doc(id)
         batch.set(docRef, { name })
       })
 
@@ -57,7 +86,10 @@ export class FireStoreMemberRepository implements MemberRepository {
       const _members = members instanceof Member ? [{ ...members }] : [...members]
 
       _members.forEach(({ id }) => {
-        const docRef = this.client.collection(this.collectionName).doc(id)
+        const docRef = this.client
+          .collection(this.collectionName)
+          .withConverter(memberDocConverter)
+          .doc(id)
         batch.delete(docRef)
       })
 

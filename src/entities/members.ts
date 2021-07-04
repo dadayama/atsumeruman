@@ -1,7 +1,7 @@
 import { Member } from './member'
 
 export class Members {
-  constructor(private readonly members: Member[]) {}
+  constructor(private readonly members: Member[] = []) {}
 
   *[Symbol.iterator](): Iterator<Member> {
     yield* this.members
@@ -19,10 +19,6 @@ export class Members {
     const memberIds = members instanceof Member ? [members.id] : [...members].map(({ id }) => id)
     const _members = this.members.filter(({ id }) => !memberIds.includes(id))
     return new Members(_members)
-  }
-
-  findById(memberId: string): Member | undefined {
-    return this.members.find((member) => member.id === memberId)
   }
 
   pickRandomized(numberOfMember: number): Members {

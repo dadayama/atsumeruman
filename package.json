@@ -15,6 +15,7 @@
   "main": "lib/index.js",
   "scripts": {
     "lint": "eslint --fix --ext .js,.ts .",
+    "lint:ts": "tsc --noEmit",
     "build": "tsc",
     "serve": "NODE_ENV=development tsc-watch --onFirstSuccess 'firebase emulators:start --only functions'",
     "shell": "NODE_ENV=development tsc-watch --onFirstSuccess 'firebase functions:shell'",

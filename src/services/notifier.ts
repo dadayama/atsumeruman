@@ -5,5 +5,4 @@ export class NotifierHandleError extends Error {}
 export type Notifier = {
   notify(message: string): Promise<void>
   notify(message: string, targetMembers: Member | Members): Promise<void>
-  notifySecretly(message: string, targetMember: Member): Promise<void>
 }

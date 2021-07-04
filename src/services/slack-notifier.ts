@@ -43,16 +43,4 @@ export class SlackNotifier implements Notifier {
       throw new NotifierHandleError(e?.message || 'Failed to notification to Slack.')
     }
   }
-
-  async notifySecretly(message: string, targetMember: Member): Promise<void> {
-    try {
-      this.client.chat.postEphemeral({
-        channel: this.channel,
-        user: targetMember.id,
-        text: message,
-      })
-    } catch (e) {
-      throw new NotifierHandleError(e?.message || 'Failed to notification to Slack.')
-    }
-  }
 }

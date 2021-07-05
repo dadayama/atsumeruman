@@ -1,6 +1,6 @@
-import { Member, Members } from '../index'
+import { Member, Members } from '..'
 
-describe('members', () => {
+describe('Members', () => {
   let members: Members
 
   beforeEach(() => {

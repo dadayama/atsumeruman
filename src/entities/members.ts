@@ -28,10 +28,9 @@ export class Members {
 
     const randomized = []
     const members = [...this.members]
-    const membersLength = this.members.length
 
     for (let i = 0; i < numberOfMember; i++) {
-      const index = Math.floor(Math.random() * membersLength)
+      const index = Math.floor(Math.random() * members.length)
       randomized[i] = members[index]
       members.splice(index, 1)
     }

@@ -37,4 +37,19 @@ export class Members {
 
     return new Members(randomized)
   }
+
+  pickRandomizedToFill(numberOfTargetMember: number, supplyMembers: Members): Members {
+    const numberOfMember = this.members.length
+
+    if (numberOfMember > numberOfTargetMember) {
+      // メンバー数が指定数を上回る場合、ランダムに指定数分のメンバーを抽出する
+      return this.pickRandomized(numberOfTargetMember)
+    } else if (numberOfMember < numberOfTargetMember) {
+      // メンバー数が指定数を下回る場合、追加のメンバー一覧から不足分を抽出して補う
+      const numberToAdd = numberOfTargetMember - numberOfMember
+      return this.add(supplyMembers.remove(this).pickRandomized(numberToAdd))
+    }
+
+    return this
+  }
 }

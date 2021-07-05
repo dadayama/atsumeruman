@@ -70,26 +70,23 @@ export class AtsumeruMan {
     const currentMembers = await this.currentMemberRepository.getAll()
     const gatheredMembers = await this.historyMemberRepository.getAll()
 
-    // 現在のメンバー一覧から、招集履歴に存在しないメンバーのみを抽出する
-    let targetMembers = currentMembers.remove(gatheredMembers)
-    const numberOfMember = targetMembers.count
+    // 現在のメンバー一覧から招集履歴に存在しないメンバーを抽出する
+    const unGatheredMembers = currentMembers.remove(gatheredMembers)
 
-    if (numberOfMember > numberOfTargetMember) {
-      // 招集履歴に存在しないメンバーの数が取得人数を上回る場合、抽出したメンバーからさらにランダムに取得人数分だけ抽出する
-      targetMembers = targetMembers.pickRandomized(numberOfTargetMember)
-    } else if (numberOfMember < numberOfTargetMember) {
-      // 招集履歴に存在しないメンバーの数が取得人数を下回る場合、現在のメンバー一覧から不足分を抽出して補う
-      const numberToAdd = numberOfTargetMember - numberOfMember
-      targetMembers = targetMembers.add(
-        currentMembers.remove(targetMembers).pickRandomized(numberToAdd)
-      )
-      // 記録が埋まるので全記録をクリアする
+    if (unGatheredMembers.count < numberOfTargetMember) {
+      // 招集履歴に存在しないメンバーの数が取得人数を下回る場合、記録を全削除しリセットする
+      // ※ 記録が埋まってしまうため
       await this.historyMemberRepository.remove(gatheredMembers)
     }
 
-    await this.historyMemberRepository.add(targetMembers)
+    // 取得人数を（可能な限り）満たすメンバー一覧をランダムに取得する
+    const pickedMembers = unGatheredMembers.pickRandomizedToFill(
+      numberOfTargetMember,
+      currentMembers
+    )
+    await this.historyMemberRepository.add(pickedMembers)
 
-    return targetMembers
+    return pickedMembers
   }
 
   /**

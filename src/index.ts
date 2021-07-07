@@ -19,8 +19,8 @@ const slackApp = new SlackApp({
 
 admin.initializeApp()
 const fireStoreClient = admin.firestore()
-const currentMemberRepository = new FireStoreMemberRepository({
-  collectionName: config.FIRESTORE_CURRENT_MEMBERS_COLLECTION_NAME,
+const targetMemberRepository = new FireStoreMemberRepository({
+  collectionName: config.FIRESTORE_TARGET_MEMBERS_COLLECTION_NAME,
   client: fireStoreClient,
 })
 const historyMemberRepository = new FireStoreMemberRepository({
@@ -34,7 +34,7 @@ const notifier = new SlackNotifier({
 })
 
 const atsumeruMan = new AtsumeruMan({
-  currentMemberRepository,
+  targetMemberRepository,
   historyMemberRepository,
 })
 

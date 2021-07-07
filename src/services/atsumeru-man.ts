@@ -8,17 +8,17 @@ export class NotFoundMemberError extends Error {}
  * 雑談の招集対象を管理する
  */
 export class AtsumeruMan {
-  private readonly currentMemberRepository: MemberRepository
+  private readonly targetMemberRepository: MemberRepository
   private readonly historyMemberRepository: MemberRepository
 
   constructor({
-    currentMemberRepository,
+    targetMemberRepository,
     historyMemberRepository,
   }: {
-    currentMemberRepository: MemberRepository
+    targetMemberRepository: MemberRepository
     historyMemberRepository: MemberRepository
   }) {
-    this.currentMemberRepository = currentMemberRepository
+    this.targetMemberRepository = targetMemberRepository
     this.historyMemberRepository = historyMemberRepository
   }
 
@@ -35,7 +35,7 @@ export class AtsumeruMan {
       throw new DuplicatedMemberError('Member have already joined.')
     }
 
-    await this.currentMemberRepository.add(member)
+    await this.targetMemberRepository.add(member)
   }
 
   /**
@@ -51,14 +51,14 @@ export class AtsumeruMan {
       throw new NotFoundMemberError('Member have not joined')
     }
 
-    await this.currentMemberRepository.remove(member)
+    await this.targetMemberRepository.remove(member)
   }
 
   /**
    * 招集対象メンバー一覧を取得する
    */
   async getAddedMembersList(): Promise<Members> {
-    return await this.currentMemberRepository.getAll()
+    return await this.targetMemberRepository.getAll()
   }
 
   /**
@@ -67,11 +67,11 @@ export class AtsumeruMan {
    * @param {number} numberOfTargetMember 取得人数
    */
   async pickMembers(numberOfTargetMember: number): Promise<Members> {
-    const currentMembers = await this.currentMemberRepository.getAll()
+    const targetMembers = await this.targetMemberRepository.getAll()
     const gatheredMembers = await this.historyMemberRepository.getAll()
 
     // 現在のメンバー一覧から招集履歴に存在しないメンバーを抽出する
-    const unGatheredMembers = currentMembers.remove(gatheredMembers)
+    const unGatheredMembers = targetMembers.remove(gatheredMembers)
 
     if (unGatheredMembers.count < numberOfTargetMember) {
       // 招集履歴に存在しないメンバーの数が取得人数を下回る場合、記録を全削除しリセットする
@@ -82,7 +82,7 @@ export class AtsumeruMan {
     // 取得人数を（可能な限り）満たすメンバー一覧をランダムに取得する
     const pickedMembers = unGatheredMembers.pickRandomizedToFill(
       numberOfTargetMember,
-      currentMembers
+      targetMembers
     )
     await this.historyMemberRepository.add(pickedMembers)
 
@@ -94,7 +94,7 @@ export class AtsumeruMan {
    * @param {string} member メンバー
    */
   private async hasBeenAdded(member: Member): Promise<boolean> {
-    const _member = await this.currentMemberRepository.findById(member.id)
+    const _member = await this.targetMemberRepository.findById(member.id)
     return !!_member
   }
 }

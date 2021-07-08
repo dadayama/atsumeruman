@@ -14,12 +14,11 @@ const getConfigValue = (key: string) => {
 export const IS_DEBUG_MODE = process.env.NODE_ENV !== 'production'
 export const NUMBER_OF_TARGET = getConfigValue('general.number_of_target')
 export const VIDEO_CHAT_URL = getConfigValue('general.video_chat_url')
-export const FUNCTIONS_CRON_SCHEDULE = getConfigValue('platform.firebase.functions.cron_schedule')
-export const FIRESTORE_TARGET_MEMBERS_COLLECTION_NAME = getConfigValue(
-  'platform.firebase.firestore.collection.target_members'
+export const FUNCTIONS_CRON_SCHEDULE_START = getConfigValue(
+  'platform.firebase.functions.cron_schedule_start'
 )
-export const FIRESTORE_HISTORY_MEMBERS_COLLECTION_NAME = getConfigValue(
-  'platform.firebase.firestore.collection.history_members'
+export const FUNCTIONS_CRON_SCHEDULE_END = getConfigValue(
+  'platform.firebase.functions.cron_schedule_end'
 )
 export const SLACK_SIGNING_SECRET = getConfigValue('chat.slack.signing_secret')
 export const SLACK_BOT_TOKEN = getConfigValue('chat.slack.bot_token')

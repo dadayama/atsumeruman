@@ -20,22 +20,26 @@ const slackApp = new SlackApp({
 admin.initializeApp()
 const fireStoreClient = admin.firestore()
 const targetMemberRepository = new FireStoreMemberRepository({
-  collectionName: config.FIRESTORE_TARGET_MEMBERS_COLLECTION_NAME,
+  collectionName: 'targetMembers',
   client: fireStoreClient,
 })
 const historyMemberRepository = new FireStoreMemberRepository({
-  collectionName: config.FIRESTORE_HISTORY_MEMBERS_COLLECTION_NAME,
+  collectionName: 'historyMembers',
   client: fireStoreClient,
+})
+const chattingMemberRepository = new FireStoreMemberRepository({
+  collectionName: 'chattingMembers',
+  client: fireStoreClient,
+})
+const atsumeruMan = new AtsumeruMan({
+  targetMemberRepository,
+  historyMemberRepository,
+  chattingMemberRepository,
 })
 
 const notifier = new SlackNotifier({
   channel: config.SLACK_TARGET_CHANNEL,
   client: slackApp.client,
-})
-
-const atsumeruMan = new AtsumeruMan({
-  targetMemberRepository,
-  historyMemberRepository,
 })
 
 slackApp.command(
@@ -44,7 +48,7 @@ slackApp.command(
     ack()
 
     try {
-      await atsumeruMan.addMember(userId, userName)
+      await atsumeruMan.addTargetMember(userId, userName)
       say(`<@${userId}>\nｻﾝｶ ｱﾘｶﾞﾄ :tada:`)
     } catch (e) {
       console.warn(e)
@@ -66,7 +70,7 @@ slackApp.command(
     ack()
 
     try {
-      await atsumeruMan.removeMember(userId, userName)
+      await atsumeruMan.removeTargetMember(userId, userName)
       say(`<@${userId}>\nﾊﾞｲﾊﾞｲ :wave:`)
     } catch (e) {
       console.warn(e)
@@ -86,7 +90,7 @@ slackApp.command('/atsumeruman-list', async ({ ack, say }) => {
   ack()
 
   try {
-    const members = await atsumeruMan.getAddedMembersList()
+    const members = await atsumeruMan.getTargetMembersList()
 
     if (members.count) {
       const membersListString = [...members].map(({ name }) => `• *${name}*`).join('\n')
@@ -110,8 +114,8 @@ slackApp.command('/atsumeruman-list', async ({ ack, say }) => {
 
 export const command = https.onRequest(receiver.app)
 
-export const gather = pubsub
-  .schedule(config.FUNCTIONS_CRON_SCHEDULE)
+export const convene = pubsub
+  .schedule(config.FUNCTIONS_CRON_SCHEDULE_START)
   .timeZone('Asia/Tokyo')
   .onRun(async () => {
     try {
@@ -119,6 +123,30 @@ export const gather = pubsub
       if (members.count === 0) return
 
       const message = `ｻﾞﾂﾀﾞﾝ ﾉ ｼﾞｶﾝ ﾀﾞﾖ\nｱﾂﾏﾚｰ :clap:\n${config.VIDEO_CHAT_URL}`
+      await notifier.notify(message, members)
+    } catch (e) {
+      console.warn(e)
+
+      if (e instanceof MemberRepositoryHandleError) {
+        notifier.notify('ﾒﾝﾊﾞｰ ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ :innocent:')
+      } else if (e instanceof NotifierHandleError) {
+        notifier.notify('ﾂｳﾁ ｻｰﾋﾞｽ ﾄﾉ ｾﾂｿﾞｸ ﾆ ｼｯﾊﾟｲ :innocent:')
+      } else {
+        notifier.notify('ﾓﾝﾀﾞｲ ｶﾞ ﾊｯｾｲ :ladybug:')
+      }
+    }
+    return null
+  })
+
+export const dismiss = pubsub
+  .schedule(config.FUNCTIONS_CRON_SCHEDULE_END)
+  .timeZone('Asia/Tokyo')
+  .onRun(async () => {
+    try {
+      const members = await atsumeruMan.getChattingMembersList()
+      if (members.count === 0) return
+
+      const message = 'ｻﾞﾂﾀﾞﾝ ｼｭｳﾘｮｳ ﾉ ｼﾞｶﾝ ﾀﾞﾖ :pray:'
       await notifier.notify(message, members)
     } catch (e) {
       console.warn(e)

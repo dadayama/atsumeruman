@@ -10,16 +10,20 @@ export class NotFoundMemberError extends Error {}
 export class AtsumeruMan {
   private readonly targetMemberRepository: MemberRepository
   private readonly historyMemberRepository: MemberRepository
+  private readonly chattingMemberRepository: MemberRepository
 
   constructor({
     targetMemberRepository,
     historyMemberRepository,
+    chattingMemberRepository,
   }: {
     targetMemberRepository: MemberRepository
     historyMemberRepository: MemberRepository
+    chattingMemberRepository: MemberRepository
   }) {
     this.targetMemberRepository = targetMemberRepository
     this.historyMemberRepository = historyMemberRepository
+    this.chattingMemberRepository = chattingMemberRepository
   }
 
   /**
@@ -27,7 +31,7 @@ export class AtsumeruMan {
    * @param {string} memberId メンバーID
    * @param {string} memberName メンバー名
    */
-  async addMember(memberId: string, memberName: string): Promise<void> {
+  async addTargetMember(memberId: string, memberName: string): Promise<void> {
     const member = new Member(memberId, memberName)
 
     const hasBeenAdded = await this.hasBeenAdded(member)
@@ -43,7 +47,7 @@ export class AtsumeruMan {
    * @param {string} memberId メンバーID
    * @param {string} memberName メンバー名
    */
-  async removeMember(memberId: string, memberName: string): Promise<void> {
+  async removeTargetMember(memberId: string, memberName: string): Promise<void> {
     const member = new Member(memberId, memberName)
 
     const hasBeenAdded = await this.hasBeenAdded(member)
@@ -57,8 +61,15 @@ export class AtsumeruMan {
   /**
    * 招集対象メンバー一覧を取得する
    */
-  async getAddedMembersList(): Promise<Members> {
+  async getTargetMembersList(): Promise<Members> {
     return await this.targetMemberRepository.getAll()
+  }
+
+  /**
+   * 雑談中のメンバー一覧を取得する
+   */
+  async getChattingMembersList(): Promise<Members> {
+    return await this.chattingMemberRepository.getAll()
   }
 
   /**
@@ -84,7 +95,10 @@ export class AtsumeruMan {
       numberOfTargetMember,
       targetMembers
     )
+
+    // 履歴と雑談中のメンバー一覧を記録する
     await this.historyMemberRepository.add(pickedMembers)
+    await this.chattingMemberRepository.add(pickedMembers)
 
     return pickedMembers
   }

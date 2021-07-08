@@ -61,7 +61,7 @@ describe('Members', () => {
     })
   })
 
-  describe('pickRandomized()', () => {
+  describe('pickRandomly()', () => {
     const targetMember1 = new Member('id_1', 'name_1')
     const targetMember2 = new Member('id_2', 'name_2')
     const targetMember3 = new Member('id_3', 'name_3')
@@ -71,14 +71,14 @@ describe('Members', () => {
     })
 
     it('指定数のメンバーをランダムに抽出できること', () => {
-      const _members = members.pickRandomized(2)
+      const _members = members.pickRandomly(2)
 
       expect(_members.count).toStrictEqual(2)
       expect([...members]).toEqual(expect.arrayContaining([..._members]))
     })
   })
 
-  describe.only('pickRandomizedToFill()', () => {
+  describe.only('pickRandomlyToFill()', () => {
     const targetMember1 = new Member('id_1', 'name_1')
     const targetMember2 = new Member('id_2', 'name_2')
     const targetMember3 = new Member('id_3', 'name_3')
@@ -94,21 +94,21 @@ describe('Members', () => {
     })
 
     it('指定数を満たすメンバーが存在する場合、その中からランダムに指定数分のメンバーを抽出できること', () => {
-      const _members = members.pickRandomizedToFill(2, supplyMembers)
+      const _members = members.pickRandomlyToFill(2, supplyMembers)
 
       expect(_members.count).toStrictEqual(2)
       expect([...members]).toEqual(expect.arrayContaining([..._members]))
     })
 
     it('指定数を満たすメンバーが存在しない場合、追加メンバーを加えた上でランダムに指定数分のメンバーを抽出できること', () => {
-      const _members = members.pickRandomizedToFill(5, supplyMembers)
+      const _members = members.pickRandomlyToFill(5, supplyMembers)
 
       expect(_members.count).toStrictEqual(5)
       expect([...members, ...supplyMembers]).toEqual(expect.arrayContaining([..._members]))
     })
 
     it('指定数とメンバー数が同じである場合、同じメンバー一覧が返却されること', () => {
-      const _members = members.pickRandomizedToFill(3, supplyMembers)
+      const _members = members.pickRandomlyToFill(3, supplyMembers)
 
       expect(_members).toEqual(members)
     })

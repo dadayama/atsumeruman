@@ -91,10 +91,7 @@ export class AtsumeruMan {
     }
 
     // 取得人数を（可能な限り）満たすメンバー一覧をランダムに取得する
-    const pickedMembers = unGatheredMembers.pickRandomizedToFill(
-      numberOfTargetMember,
-      targetMembers
-    )
+    const pickedMembers = unGatheredMembers.pickRandomlyToFill(numberOfTargetMember, targetMembers)
 
     // 履歴と雑談中のメンバー一覧を記録する
     await this.historyMemberRepository.add(pickedMembers)

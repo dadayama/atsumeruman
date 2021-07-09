@@ -1,0 +1,27 @@
+{
+  "batchcomplete": "",
+  "continue": {
+    "grncontinue": "0.284035908113|0.284036164457|2586793|0",
+    "continue": "grncontinue||"
+  },
+  "query": {
+    "pageids": ["4327223"],
+    "pages": {
+      "4327223": {
+        "pageid": 4327223,
+        "ns": 0,
+        "title": "\u6298\u7530\u60a6\u90ce",
+        "contentmodel": "wikitext",
+        "pagelanguage": "ja",
+        "pagelanguagehtmlcode": "ja",
+        "pagelanguagedir": "ltr",
+        "touched": "2021-07-05T14:43:22Z",
+        "lastrevid": 83992811,
+        "length": 2173,
+        "fullurl": "https://ja.wikipedia.org/wiki/%E6%8A%98%E7%94%B0%E6%82%A6%E9%83%8E",
+        "editurl": "https://ja.wikipedia.org/w/index.php?title=%E6%8A%98%E7%94%B0%E6%82%A6%E9%83%8E&action=edit",
+        "canonicalurl": "https://ja.wikipedia.org/wiki/%E6%8A%98%E7%94%B0%E6%82%A6%E9%83%8E"
+      }
+    }
+  }
+}

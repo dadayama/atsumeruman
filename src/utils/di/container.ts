@@ -3,10 +3,10 @@ import admin from 'firebase-admin'
 import { TYPES } from './types'
 import {
   TargetMemberRepository,
-  HistoryMemberRepository,
+  ConvenedMemberRepository,
   ChattingMemberRepository,
   FireStoreTargetMemberRepository,
-  FireStoreHistoryMemberRepository,
+  FireStoreConvenedMemberRepository,
   FireStoreChattingMemberRepository,
   SeriousWordRepository,
   FoolishWordRepository,
@@ -22,8 +22,8 @@ container
   .bind<TargetMemberRepository>(TYPES.TargetMemberRepository)
   .toConstantValue(new FireStoreTargetMemberRepository(fireStoreClient))
 container
-  .bind<HistoryMemberRepository>(TYPES.HistoryMemberRepository)
-  .toConstantValue(new FireStoreHistoryMemberRepository(fireStoreClient))
+  .bind<ConvenedMemberRepository>(TYPES.ConvenedMemberRepository)
+  .toConstantValue(new FireStoreConvenedMemberRepository(fireStoreClient))
 container
   .bind<ChattingMemberRepository>(TYPES.ChattingMemberRepository)
   .toConstantValue(new FireStoreChattingMemberRepository(fireStoreClient))

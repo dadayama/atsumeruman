@@ -3,7 +3,7 @@ import { di } from '../utils'
 import { Member, Members } from '../entities'
 import {
   TargetMemberRepository,
-  HistoryMemberRepository,
+  ConvenedMemberRepository,
   ChattingMemberRepository,
 } from '../repositories'
 
@@ -15,18 +15,18 @@ export class NotFoundMemberError extends Error {}
  */
 export class ChatMemberManager {
   private readonly targetMemberRepository: TargetMemberRepository
-  private readonly historyMemberRepository: HistoryMemberRepository
+  private readonly convenedMemberRepository: ConvenedMemberRepository
   private readonly chattingMemberRepository: ChattingMemberRepository
 
   constructor() {
     this.targetMemberRepository = di.container.get<TargetMemberRepository>(
       di.TYPES.TargetMemberRepository
     )
-    this.historyMemberRepository = di.container.get<HistoryMemberRepository>(
-      di.TYPES.TargetMemberRepository
+    this.convenedMemberRepository = di.container.get<ConvenedMemberRepository>(
+      di.TYPES.ConvenedMemberRepository
     )
     this.chattingMemberRepository = di.container.get<ChattingMemberRepository>(
-      di.TYPES.TargetMemberRepository
+      di.TYPES.ChattingMemberRepository
     )
   }
 
@@ -76,7 +76,7 @@ export class ChatMemberManager {
    */
   async pickTargetMembersRandomly(numberOfTargetMember: number): Promise<Members> {
     const targetMembers = await this.targetMemberRepository.getAll()
-    const convenedMembers = await this.historyMemberRepository.getAll()
+    const convenedMembers = await this.convenedMemberRepository.getAll()
 
     // 現在のメンバー一覧から招集履歴に存在しないメンバーを抽出する
     const unConvenedMembers = targetMembers.remove(convenedMembers)
@@ -84,7 +84,7 @@ export class ChatMemberManager {
     if (unConvenedMembers.count < numberOfTargetMember) {
       // 招集履歴に存在しないメンバーの数が取得人数を下回る場合、記録を全削除しリセットする
       // ※ 記録が埋まってしまうため
-      await this.historyMemberRepository.remove(convenedMembers)
+      await this.convenedMemberRepository.remove(convenedMembers)
     }
 
     // 取得人数を（可能な限り）満たすメンバー一覧をランダムに取得する
@@ -94,7 +94,7 @@ export class ChatMemberManager {
     )
 
     // 取得されたメンバーを履歴に記録する
-    await this.historyMemberRepository.add(pickedMembers)
+    await this.convenedMemberRepository.add(pickedMembers)
     // 取得されたメンバーを雑談中のメンバーとして記録する
     await this.chattingMemberRepository.add(pickedMembers)
 

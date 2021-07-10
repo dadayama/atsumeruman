@@ -3,8 +3,8 @@ import { injectable } from 'inversify'
 import { FireStoreMemberRepository } from './firestore-member-repository'
 
 @injectable()
-export class FireStoreHistoryMemberRepository extends FireStoreMemberRepository {
+export class FireStoreConvenedMemberRepository extends FireStoreMemberRepository {
   constructor(client?: firestore.Firestore) {
-    super('historyMembers', client)
+    super('convenedMembers', client)
   }
 }

@@ -78,7 +78,7 @@ describe('Members', () => {
     })
   })
 
-  describe.only('pickRandomlyToFill()', () => {
+  describe('pickRandomlyToFill()', () => {
     const targetMember1 = new Member('id_1', 'name_1')
     const targetMember2 = new Member('id_2', 'name_2')
     const targetMember3 = new Member('id_3', 'name_3')

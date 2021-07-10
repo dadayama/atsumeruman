@@ -1,19 +1,36 @@
 import 'reflect-metadata'
 import { Topic } from '../entities'
-import { WordRepository } from '../repositories'
+import { WordRepository, SeriousWordRepository, FoolishWordRepository } from '../repositories'
 import { di } from '../utils'
 
-export class MockError extends Error {}
-
+/**
+ * 雑談のネタを取り扱う
+ */
 export class ChatTopics {
-  private readonly wordRepository: WordRepository
+  private readonly seriousWordRepository: SeriousWordRepository
+  private readonly foolishWordRepository: FoolishWordRepository
 
   constructor() {
-    this.wordRepository = di.container.get<WordRepository>(di.TYPES.WordRepository)
+    this.seriousWordRepository = di.container.get<SeriousWordRepository>(
+      di.TYPES.SeriousWordRepository
+    )
+    this.foolishWordRepository = di.container.get<FoolishWordRepository>(
+      di.TYPES.FoolishWordRepository
+    )
   }
 
+  /**
+   * 雑談のネタをランダムに1つ取得する
+   */
   async getTopicRandomly(): Promise<Topic> {
-    const word = await this.wordRepository.getRandomly()
+    const repository = this.pickWordRepositoryRandomly()
+    const word = await repository.getRandomly()
     return new Topic(word.value, word.descriptionUrl)
+  }
+
+  private pickWordRepositoryRandomly(): WordRepository {
+    const repositories = [this.seriousWordRepository, this.foolishWordRepository]
+    const index = Math.floor(Math.random() * repositories.length)
+    return repositories[index]
   }
 }

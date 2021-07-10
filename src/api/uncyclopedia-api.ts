@@ -1,9 +1,9 @@
 import { fetch } from '../utils'
 import { MediaWikiAPI } from './media-wiki-api'
 
-const BASE_URL = 'https://ja.wikipedia.org/w/api.php'
+const BASE_URL = 'https://ja.uncyclopedia.info/api.php'
 
-export class WikipediaAPI extends MediaWikiAPI {
+export class UnCyclopediaAPI extends MediaWikiAPI {
   constructor(fetcher: typeof fetch = fetch) {
     super(BASE_URL, fetcher)
   }

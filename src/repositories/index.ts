@@ -7,4 +7,8 @@ export { FireStoreTargetMemberRepository } from './firestore-target-member-repos
 export { FireStoreHistoryMemberRepository } from './firestore-history-member-repository'
 export { FireStoreChattingMemberRepository } from './firestore-chatting-member-repository'
 export { WordRepository, WordRepositoryHandleError } from './word-repository'
+export { SeriousWordRepository } from './serious-word-repository'
+export { FoolishWordRepository } from './foolish-word-repository'
+export { MediaWikiWordRepository } from './media-wiki-word-repository'
 export { WikipediaWordRepository } from './wikipedia-word-repository'
+export { UnCyclopediaWordRepository } from './uncyclopedia-word-repository'

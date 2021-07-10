@@ -8,14 +8,16 @@ import {
   FireStoreTargetMemberRepository,
   FireStoreHistoryMemberRepository,
   FireStoreChattingMemberRepository,
-  WordRepository,
+  SeriousWordRepository,
+  FoolishWordRepository,
   WikipediaWordRepository,
+  UnCyclopediaWordRepository,
 } from '../../repositories'
 
 admin.initializeApp()
 const fireStoreClient = admin.firestore()
 
-const container = new Container()
+const container = new Container({ skipBaseClassChecks: true })
 container
   .bind<TargetMemberRepository>(TYPES.TargetMemberRepository)
   .toConstantValue(new FireStoreTargetMemberRepository(fireStoreClient))
@@ -25,6 +27,7 @@ container
 container
   .bind<ChattingMemberRepository>(TYPES.ChattingMemberRepository)
   .toConstantValue(new FireStoreChattingMemberRepository(fireStoreClient))
-container.bind<WordRepository>(TYPES.WordRepository).to(WikipediaWordRepository)
+container.bind<SeriousWordRepository>(TYPES.SeriousWordRepository).to(WikipediaWordRepository)
+container.bind<FoolishWordRepository>(TYPES.FoolishWordRepository).to(UnCyclopediaWordRepository)
 
 export { container }

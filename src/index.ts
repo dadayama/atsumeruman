@@ -30,6 +30,9 @@ const notifier = new SlackNotifier({
   client: slackApp.client,
 })
 
+/**
+ * コマンドを打ったメンバーを雑談の招集対象にする
+ */
 slackApp.command(
   '/atsumeruman-join',
   async ({ command: { user_id: userId, user_name: userName }, ack, say, respond }) => {
@@ -52,6 +55,9 @@ slackApp.command(
   }
 )
 
+/**
+ * コマンドを打ったメンバーを雑談の招集対象から外す
+ */
 slackApp.command(
   '/atsumeruman-leave',
   async ({ command: { user_id: userId, user_name: userName }, ack, say, respond }) => {
@@ -74,6 +80,9 @@ slackApp.command(
   }
 )
 
+/**
+ * 雑談の招集対象メンバーの一覧を見る
+ */
 slackApp.command('/atsumeruman-list', async ({ ack, say }) => {
   ack()
 
@@ -100,6 +109,9 @@ slackApp.command('/atsumeruman-list', async ({ ack, say }) => {
   }
 })
 
+/**
+ * 雑談ネタを提供する
+ */
 slackApp.command('/atsumeruman-topic', async ({ ack, say }) => {
   ack()
 

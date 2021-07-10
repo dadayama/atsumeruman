@@ -12,7 +12,7 @@ const getConfigValue = (key: string) => {
 }
 
 export const IS_DEBUG_MODE = process.env.NODE_ENV !== 'production'
-export const NUMBER_OF_TARGET = getConfigValue('general.number_of_target')
+export const NUMBER_OF_TARGET_MEMBER = getConfigValue('general.number_of_target_member')
 export const VIDEO_CHAT_URL = getConfigValue('general.video_chat_url')
 export const FUNCTIONS_CRON_SCHEDULE_START = getConfigValue(
   'platform.firebase.functions.cron_schedule_start'

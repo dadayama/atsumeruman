@@ -6,7 +6,7 @@ import { di } from '../utils'
 /**
  * 雑談のネタを取り扱う
  */
-export class ChatTopics {
+export class ChatTopicCollector {
   private readonly seriousWordRepository: SeriousWordRepository
   private readonly foolishWordRepository: FoolishWordRepository
 
@@ -20,9 +20,9 @@ export class ChatTopics {
   }
 
   /**
-   * 雑談のネタをランダムに1つ取得する
+   * 雑談のネタをランダムに1つ収集する
    */
-  async getTopicRandomly(): Promise<Topic> {
+  async collectTopicRandomly(): Promise<Topic> {
     const repository = this.pickWordRepositoryRandomly()
     const word = await repository.getRandomly()
     return new Topic(word.value, word.descriptionUrl)

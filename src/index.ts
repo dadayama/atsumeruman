@@ -3,7 +3,7 @@ import { App as SlackApp, ExpressReceiver } from '@slack/bolt'
 import * as config from './config'
 import {
   ChatMemberManager,
-  ChatTopics,
+  ChatTopicCollector,
   SlackNotifier,
   DuplicatedMemberError,
   NotFoundMemberError,
@@ -23,7 +23,7 @@ const slackApp = new SlackApp({
 })
 
 const chatMemberManager = new ChatMemberManager()
-const chatTopics = new ChatTopics()
+const chatTopicCollector = new ChatTopicCollector()
 
 const notifier = new SlackNotifier({
   channel: config.SLACK_TARGET_CHANNEL,
@@ -116,7 +116,7 @@ slackApp.command('/atsumeruman-topic', async ({ ack, say }) => {
   ack()
 
   try {
-    const topic = await chatTopics.getTopicRandomly()
+    const topic = await chatTopicCollector.collectTopicRandomly()
     say({
       text: `「<${topic.descriptionUrl}|*${topic.title}*>」ｦ ﾂｶｯﾃ ﾊﾅｼ ｦ ﾓﾘｱｹﾞﾖｳ :raised_hands:`,
       mrkdwn: true,
@@ -139,7 +139,9 @@ export const convene = pubsub
   .timeZone('Asia/Tokyo')
   .onRun(async () => {
     try {
-      const members = await chatMemberManager.pickMembers(config.NUMBER_OF_TARGET)
+      const members = await chatMemberManager.pickTargetMembersRandomly(
+        config.NUMBER_OF_TARGET_MEMBER
+      )
       if (members.count === 0) return
 
       const message = `ｻﾞﾂﾀﾞﾝ ﾉ ｼﾞｶﾝ ﾀﾞﾖ\nｱﾂﾏﾚｰ :clap:\n${config.VIDEO_CHAT_URL}`
@@ -163,7 +165,7 @@ export const dismiss = pubsub
   .timeZone('Asia/Tokyo')
   .onRun(async () => {
     try {
-      const members = await chatMemberManager.getChattingMembers()
+      const members = await chatMemberManager.suckUpChattingMembers()
       if (members.count === 0) return
 
       const message = 'ｻﾞﾂﾀﾞﾝ ｼｭｳﾘｮｳ ﾉ ｼﾞｶﾝ ﾀﾞﾖ :pray:'

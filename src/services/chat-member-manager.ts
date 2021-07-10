@@ -1,11 +1,11 @@
 import 'reflect-metadata'
+import { di } from '../utils'
 import { Member, Members } from '../entities'
 import {
   TargetMemberRepository,
   HistoryMemberRepository,
   ChattingMemberRepository,
 } from '../repositories'
-import { di } from '../utils'
 
 export class DuplicatedMemberError extends Error {}
 export class NotFoundMemberError extends Error {}
@@ -70,32 +70,28 @@ export class ChatMemberManager {
   }
 
   /**
-   * 雑談中のメンバー一覧を取得する
-   */
-  async getChattingMembers(): Promise<Members> {
-    return await this.chattingMemberRepository.getAll()
-  }
-
-  /**
    * 雑談の招集対象のメンバーをランダムに取得する
    * 現在のメンバー一覧と招集履歴を突き合わせ、可能な限り履歴に存在しないメンバーを選ぶ
    * @param {number} numberOfTargetMember 取得人数
    */
-  async pickMembers(numberOfTargetMember: number): Promise<Members> {
+  async pickTargetMembersRandomly(numberOfTargetMember: number): Promise<Members> {
     const targetMembers = await this.targetMemberRepository.getAll()
-    const gatheredMembers = await this.historyMemberRepository.getAll()
+    const convenedMembers = await this.historyMemberRepository.getAll()
 
     // 現在のメンバー一覧から招集履歴に存在しないメンバーを抽出する
-    const unGatheredMembers = targetMembers.remove(gatheredMembers)
+    const unConvenedMembers = targetMembers.remove(convenedMembers)
 
-    if (unGatheredMembers.count < numberOfTargetMember) {
+    if (unConvenedMembers.count < numberOfTargetMember) {
       // 招集履歴に存在しないメンバーの数が取得人数を下回る場合、記録を全削除しリセットする
       // ※ 記録が埋まってしまうため
-      await this.historyMemberRepository.remove(gatheredMembers)
+      await this.historyMemberRepository.remove(convenedMembers)
     }
 
     // 取得人数を（可能な限り）満たすメンバー一覧をランダムに取得する
-    const pickedMembers = unGatheredMembers.pickRandomlyToFill(numberOfTargetMember, targetMembers)
+    const pickedMembers = await unConvenedMembers.pickRandomlyToFill(
+      numberOfTargetMember,
+      targetMembers
+    )
 
     // 取得されたメンバーを履歴に記録する
     await this.historyMemberRepository.add(pickedMembers)
@@ -103,6 +99,15 @@ export class ChatMemberManager {
     await this.chattingMemberRepository.add(pickedMembers)
 
     return pickedMembers
+  }
+
+  /**
+   * 雑談中のメンバーを取得し、雑談中という記録を消した上で返却する
+   */
+  async suckUpChattingMembers(): Promise<Members> {
+    const members = await this.chattingMemberRepository.getAll()
+    await this.chattingMemberRepository.remove(members)
+    return members
   }
 
   private async hasBeenAdded(member: Member): Promise<boolean> {

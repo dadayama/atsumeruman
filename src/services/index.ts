@@ -3,6 +3,6 @@ export {
   DuplicatedMemberError,
   NotFoundMemberError,
 } from './chat-member-manager'
-export { ChatTopics } from './chat-topics'
+export { ChatTopicCollector } from './chat-topic-collector'
 export { Notifier, NotifierHandleError } from './notifier'
 export { SlackNotifier } from './slack-notifier'

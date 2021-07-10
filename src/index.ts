@@ -3,12 +3,13 @@ import { App as SlackApp, ExpressReceiver } from '@slack/bolt'
 import * as config from './config'
 import {
   ChatMemberManager,
+  ChatTopics,
   SlackNotifier,
   DuplicatedMemberError,
   NotFoundMemberError,
   NotifierHandleError,
 } from './services'
-import { MemberRepositoryHandleError } from './repositories'
+import { MemberRepositoryHandleError, WordRepositoryHandleError } from './repositories'
 
 const receiver = new ExpressReceiver({
   signingSecret: config.SLACK_SIGNING_SECRET,
@@ -22,6 +23,7 @@ const slackApp = new SlackApp({
 })
 
 const chatMemberManager = new ChatMemberManager()
+const chatTopics = new ChatTopics()
 
 const notifier = new SlackNotifier({
   channel: config.SLACK_TARGET_CHANNEL,
@@ -92,6 +94,26 @@ slackApp.command('/atsumeruman-list', async ({ ack, say }) => {
 
     if (e instanceof MemberRepositoryHandleError) {
       say('ﾒﾝﾊﾞｰ ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ :innocent:')
+    } else {
+      say('ﾓﾝﾀﾞｲ ｶﾞ ﾊｯｾｲ :ladybug:')
+    }
+  }
+})
+
+slackApp.command('/atsumeruman-topic', async ({ ack, say }) => {
+  ack()
+
+  try {
+    const topic = await chatTopics.getTopicRandomly()
+    say({
+      text: `「<${topic.descriptionUrl}|*${topic.title}*>」ｦ ﾂｶｯﾃ ﾊﾅｼ ｦ ﾓﾘｱｹﾞﾖｳ :raised_hands:`,
+      mrkdwn: true,
+    })
+  } catch (e) {
+    console.warn(e)
+
+    if (e instanceof WordRepositoryHandleError) {
+      say('ﾄﾋﾟｯｸ ﾉ ｼｭﾄｸ ﾆ ｼｯﾊﾟｲ :innocent:')
     } else {
       say('ﾓﾝﾀﾞｲ ｶﾞ ﾊｯｾｲ :ladybug:')
     }

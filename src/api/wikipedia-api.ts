@@ -1,10 +1,6 @@
-import { fetch, FetchError } from '../utils'
+import { fetch, Response } from '../utils'
 
 const ENDPOINT_BASE_URL = 'https://ja.wikipedia.org/w/api.php'
-
-export class Page {
-  constructor(readonly title: string, readonly url: string) {}
-}
 
 export type RandomPageResponseBody = {
   query: {
@@ -21,7 +17,7 @@ export type RandomPageResponseBody = {
 export class WikipediaAPI {
   constructor(private readonly fetcher: typeof fetch = fetch) {}
 
-  async fetchRandomPage(): Promise<Page> {
+  async fetchRandomPage(): Promise<Response<RandomPageResponseBody>> {
     const params = {
       format: 'json',
       action: 'query',
@@ -31,17 +27,6 @@ export class WikipediaAPI {
       inprop: 'url',
       indexpageids: true,
     }
-    const res = await this.fetcher<RandomPageResponseBody>(ENDPOINT_BASE_URL, params, 'json')
-
-    if (res.status >= 400) {
-      throw new FetchError('Failed to fetch the random Wikipedia page.')
-    }
-
-    const {
-      query: { pageids: pageIds, pages },
-    } = res.body
-    const page = pages[pageIds[0]]
-
-    return new Page(page.title, page.fullurl)
+    return await this.fetcher<RandomPageResponseBody>(ENDPOINT_BASE_URL, params)
   }
 }

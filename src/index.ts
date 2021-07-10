@@ -1,8 +1,13 @@
 import { https, pubsub } from 'firebase-functions'
 import { App as SlackApp, ExpressReceiver } from '@slack/bolt'
 import * as config from './config'
-import { AtsumeruMan, DuplicatedMemberError, NotFoundMemberError } from './services/atsumeru-man'
-import { SlackNotifier, NotifierHandleError } from './services'
+import {
+  ChatMemberManager,
+  SlackNotifier,
+  DuplicatedMemberError,
+  NotFoundMemberError,
+  NotifierHandleError,
+} from './services'
 import { MemberRepositoryHandleError } from './repositories'
 
 const receiver = new ExpressReceiver({
@@ -16,7 +21,7 @@ const slackApp = new SlackApp({
   processBeforeResponse: true,
 })
 
-const atsumeruMan = new AtsumeruMan()
+const chatMemberManager = new ChatMemberManager()
 
 const notifier = new SlackNotifier({
   channel: config.SLACK_TARGET_CHANNEL,
@@ -29,7 +34,7 @@ slackApp.command(
     ack()
 
     try {
-      await atsumeruMan.addTargetMember(userId, userName)
+      await chatMemberManager.addTargetMember(userId, userName)
       say(`<@${userId}>\nｻﾝｶ ｱﾘｶﾞﾄ :tada:`)
     } catch (e) {
       console.warn(e)
@@ -51,7 +56,7 @@ slackApp.command(
     ack()
 
     try {
-      await atsumeruMan.removeTargetMember(userId, userName)
+      await chatMemberManager.removeTargetMember(userId, userName)
       say(`<@${userId}>\nﾊﾞｲﾊﾞｲ :wave:`)
     } catch (e) {
       console.warn(e)
@@ -71,7 +76,7 @@ slackApp.command('/atsumeruman-list', async ({ ack, say }) => {
   ack()
 
   try {
-    const members = await atsumeruMan.getTargetMembersList()
+    const members = await chatMemberManager.getTargetMembers()
 
     if (members.count) {
       const membersListString = [...members].map(({ name }) => `• *${name}*`).join('\n')
@@ -100,7 +105,7 @@ export const convene = pubsub
   .timeZone('Asia/Tokyo')
   .onRun(async () => {
     try {
-      const members = await atsumeruMan.pickMembers(config.NUMBER_OF_TARGET)
+      const members = await chatMemberManager.pickMembers(config.NUMBER_OF_TARGET)
       if (members.count === 0) return
 
       const message = `ｻﾞﾂﾀﾞﾝ ﾉ ｼﾞｶﾝ ﾀﾞﾖ\nｱﾂﾏﾚｰ :clap:\n${config.VIDEO_CHAT_URL}`
@@ -124,7 +129,7 @@ export const dismiss = pubsub
   .timeZone('Asia/Tokyo')
   .onRun(async () => {
     try {
-      const members = await atsumeruMan.getChattingMembersList()
+      const members = await chatMemberManager.getChattingMembers()
       if (members.count === 0) return
 
       const message = 'ｻﾞﾂﾀﾞﾝ ｼｭｳﾘｮｳ ﾉ ｼﾞｶﾝ ﾀﾞﾖ :pray:'

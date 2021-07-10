@@ -22,13 +22,10 @@ const memberDocConverter: firestore.FirestoreDataConverter<MemberDoc> = {
 }
 
 export class FireStoreMemberRepository implements MemberRepository {
-  private readonly collectionName: string
-  private readonly client: firestore.Firestore
-
-  constructor({ collectionName, client }: { collectionName: string; client: firestore.Firestore }) {
-    this.collectionName = collectionName
-    this.client = client
-  }
+  constructor(
+    private readonly collectionName: string,
+    private readonly client: firestore.Firestore = firestore()
+  ) {}
 
   async getAll(): Promise<Members> {
     try {

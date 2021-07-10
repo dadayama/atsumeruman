@@ -1,10 +1,9 @@
 import { https, pubsub } from 'firebase-functions'
-import admin from 'firebase-admin'
 import { App as SlackApp, ExpressReceiver } from '@slack/bolt'
 import * as config from './config'
 import { AtsumeruMan, DuplicatedMemberError, NotFoundMemberError } from './services/atsumeru-man'
 import { SlackNotifier, NotifierHandleError } from './services'
-import { FireStoreMemberRepository, MemberRepositoryHandleError } from './repositories'
+import { MemberRepositoryHandleError } from './repositories'
 
 const receiver = new ExpressReceiver({
   signingSecret: config.SLACK_SIGNING_SECRET,
@@ -17,25 +16,7 @@ const slackApp = new SlackApp({
   processBeforeResponse: true,
 })
 
-admin.initializeApp()
-const fireStoreClient = admin.firestore()
-const targetMemberRepository = new FireStoreMemberRepository({
-  collectionName: 'targetMembers',
-  client: fireStoreClient,
-})
-const historyMemberRepository = new FireStoreMemberRepository({
-  collectionName: 'historyMembers',
-  client: fireStoreClient,
-})
-const chattingMemberRepository = new FireStoreMemberRepository({
-  collectionName: 'chattingMembers',
-  client: fireStoreClient,
-})
-const atsumeruMan = new AtsumeruMan({
-  targetMemberRepository,
-  historyMemberRepository,
-  chattingMemberRepository,
-})
+const atsumeruMan = new AtsumeruMan()
 
 const notifier = new SlackNotifier({
   channel: config.SLACK_TARGET_CHANNEL,

@@ -1,5 +1,11 @@
+import 'reflect-metadata'
 import { Member, Members } from '../entities'
-import { MemberRepository } from '../repositories'
+import {
+  TargetMemberRepository,
+  HistoryMemberRepository,
+  ChattingMemberRepository,
+} from '../repositories'
+import { di } from '../utils'
 
 export class DuplicatedMemberError extends Error {}
 export class NotFoundMemberError extends Error {}
@@ -8,22 +14,20 @@ export class NotFoundMemberError extends Error {}
  * 雑談の招集対象を管理する
  */
 export class AtsumeruMan {
-  private readonly targetMemberRepository: MemberRepository
-  private readonly historyMemberRepository: MemberRepository
-  private readonly chattingMemberRepository: MemberRepository
+  private readonly targetMemberRepository: TargetMemberRepository
+  private readonly historyMemberRepository: HistoryMemberRepository
+  private readonly chattingMemberRepository: ChattingMemberRepository
 
-  constructor({
-    targetMemberRepository,
-    historyMemberRepository,
-    chattingMemberRepository,
-  }: {
-    targetMemberRepository: MemberRepository
-    historyMemberRepository: MemberRepository
-    chattingMemberRepository: MemberRepository
-  }) {
-    this.targetMemberRepository = targetMemberRepository
-    this.historyMemberRepository = historyMemberRepository
-    this.chattingMemberRepository = chattingMemberRepository
+  constructor() {
+    this.targetMemberRepository = di.container.get<TargetMemberRepository>(
+      di.TYPES.TargetMemberRepository
+    )
+    this.historyMemberRepository = di.container.get<HistoryMemberRepository>(
+      di.TYPES.TargetMemberRepository
+    )
+    this.chattingMemberRepository = di.container.get<ChattingMemberRepository>(
+      di.TYPES.TargetMemberRepository
+    )
   }
 
   /**

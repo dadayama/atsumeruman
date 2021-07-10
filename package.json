@@ -34,8 +34,10 @@
     "express": "^4.17.1",
     "firebase-admin": "^9.10.0",
     "firebase-functions": "^3.14.1",
+    "inversify": "^5.1.1",
     "just-safe-get": "^2.1.2",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "@types/config": "0.0.38",

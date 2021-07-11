@@ -1,6 +1,6 @@
 export const TYPES = {
   TargetMemberRepository: Symbol.for('TargetMemberRepository'),
-  ConvenedMemberRepository: Symbol.for('ConvenedMemberRepository'),
+  HistoryMemberRepository: Symbol.for('HistoryMemberRepository'),
   ChattingMemberRepository: Symbol.for('ChattingMemberRepository'),
   SeriousWordRepository: Symbol.for('SeriousWordRepository'),
   FoolishWordRepository: Symbol.for('FoolishWordRepository'),

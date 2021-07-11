@@ -1,3 +1,3 @@
 import { MemberRepository } from './member-repository'
 
-export type ConvenedMemberRepository = MemberRepository
+export type HistoryMemberRepository = MemberRepository

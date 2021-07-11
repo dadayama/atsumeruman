@@ -4,10 +4,10 @@ import { app as slackApp } from '../slack'
 import { TYPES } from './types'
 import {
   TargetMemberRepository,
-  ConvenedMemberRepository,
+  HistoryMemberRepository,
   ChattingMemberRepository,
   FireStoreTargetMemberRepository,
-  FireStoreConvenedMemberRepository,
+  FireStoreHistoryMemberRepository,
   FireStoreChattingMemberRepository,
   SeriousWordRepository,
   FoolishWordRepository,
@@ -31,8 +31,8 @@ container
   .bind<TargetMemberRepository>(TYPES.TargetMemberRepository)
   .toConstantValue(new FireStoreTargetMemberRepository(fireStoreClient))
 container
-  .bind<ConvenedMemberRepository>(TYPES.ConvenedMemberRepository)
-  .toConstantValue(new FireStoreConvenedMemberRepository(fireStoreClient))
+  .bind<HistoryMemberRepository>(TYPES.HistoryMemberRepository)
+  .toConstantValue(new FireStoreHistoryMemberRepository(fireStoreClient))
 container
   .bind<ChattingMemberRepository>(TYPES.ChattingMemberRepository)
   .toConstantValue(new FireStoreChattingMemberRepository(fireStoreClient))

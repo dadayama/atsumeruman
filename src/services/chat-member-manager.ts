@@ -4,7 +4,7 @@ import { di } from '../utils'
 import { Member, Members } from '../entities'
 import {
   TargetMemberRepository,
-  ConvenedMemberRepository,
+  HistoryMemberRepository,
   ChattingMemberRepository,
 } from '../repositories'
 import { DuplicatedMemberError, NotFoundMemberError } from './member-manager'
@@ -15,15 +15,15 @@ import { DuplicatedMemberError, NotFoundMemberError } from './member-manager'
 @injectable()
 export class ChatMemberManager {
   private readonly targetMemberRepository: TargetMemberRepository
-  private readonly convenedMemberRepository: ConvenedMemberRepository
+  private readonly historyMemberRepository: HistoryMemberRepository
   private readonly chattingMemberRepository: ChattingMemberRepository
 
   constructor() {
     this.targetMemberRepository = di.container.get<TargetMemberRepository>(
       di.TYPES.TargetMemberRepository
     )
-    this.convenedMemberRepository = di.container.get<ConvenedMemberRepository>(
-      di.TYPES.ConvenedMemberRepository
+    this.historyMemberRepository = di.container.get<HistoryMemberRepository>(
+      di.TYPES.HistoryMemberRepository
     )
     this.chattingMemberRepository = di.container.get<ChattingMemberRepository>(
       di.TYPES.ChattingMemberRepository
@@ -77,25 +77,25 @@ export class ChatMemberManager {
    */
   async pickTargetMembersRandomly(numberOfTargetMember: number): Promise<Members> {
     const targetMembers = await this.targetMemberRepository.getAll()
-    const convenedMembers = await this.convenedMemberRepository.getAll()
+    const historyMembers = await this.historyMemberRepository.getAll()
 
     // 現在のメンバー一覧から招集履歴に存在しないメンバーを抽出する
-    const unConvenedMembers = targetMembers.remove(convenedMembers)
+    const membersNotInHistory = targetMembers.remove(historyMembers)
 
-    if (unConvenedMembers.count < numberOfTargetMember) {
+    if (membersNotInHistory.count < numberOfTargetMember) {
       // 招集履歴に存在しないメンバーの数が取得人数を下回る場合、記録を全削除しリセットする
       // ※ 記録が埋まってしまうため
-      await this.convenedMemberRepository.remove(convenedMembers)
+      await this.historyMemberRepository.remove(historyMembers)
     }
 
     // 取得人数を（可能な限り）満たすメンバー一覧をランダムに取得する
-    const pickedMembers = await unConvenedMembers.pickRandomlyToFill(
+    const pickedMembers = await membersNotInHistory.pickRandomlyToFill(
       numberOfTargetMember,
       targetMembers
     )
 
     // 取得されたメンバーを履歴に記録する
-    await this.convenedMemberRepository.add(pickedMembers)
+    await this.historyMemberRepository.add(pickedMembers)
 
     return pickedMembers
   }

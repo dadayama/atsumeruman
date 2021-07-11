@@ -47,17 +47,14 @@ $ vi .runtimeconfig.json
 {
   "general": {
     "video_chat_url": "Some video chat url (e.g. Google meet URL)",
-    "cron_schedule": "Cron schedule (e.g. '0 15 * * *')",
-    "number_of_target": "Number of people to gather in chat"
+    "number_of_target_member": "Number of people to gather in chat"
   },
 	"platform": {
 		"firebase": {
-			"firestore": {
-				"collection": {
-					"current_members": "Firestore collection name of participant (e.g. 'current')",
-					"history_members": "Firestore collection name of convocation history (e.g. 'history')"
-				}
-			}
+      "functions": {
+    		"cron_schedule_start": "Chat start date and time (e.g. '0 15 * * *')",
+    		"cron_schedule_end": "Chat end date and time (e.g. '15 15 * * *')",
+      }
 		}
 	},
 	"chat": {

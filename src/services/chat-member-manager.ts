@@ -1,3 +1,4 @@
+import { injectable } from 'inversify'
 import 'reflect-metadata'
 import { di } from '../utils'
 import { Member, Members } from '../entities'
@@ -6,13 +7,12 @@ import {
   ConvenedMemberRepository,
   ChattingMemberRepository,
 } from '../repositories'
-
-export class DuplicatedMemberError extends Error {}
-export class NotFoundMemberError extends Error {}
+import { DuplicatedMemberError, NotFoundMemberError } from './member-manager'
 
 /**
  * 雑談のメンバーを管理する
  */
+@injectable()
 export class ChatMemberManager {
   private readonly targetMemberRepository: TargetMemberRepository
   private readonly convenedMemberRepository: ConvenedMemberRepository
@@ -32,12 +32,9 @@ export class ChatMemberManager {
 
   /**
    * メンバーを雑談開始時に招集する対象に追加する
-   * @param {string} memberId メンバーID
-   * @param {string} memberName メンバー名
+   * @param {Member} member 対象メンバー
    */
-  async addTargetMember(memberId: string, memberName: string): Promise<void> {
-    const member = new Member(memberId, memberName)
-
+  async addTargetMember(member: Member): Promise<void> {
     const hasBeenAdded = await this.hasBeenAdded(member)
     if (hasBeenAdded) {
       throw new DuplicatedMemberError('Member have already joined.')
@@ -48,12 +45,9 @@ export class ChatMemberManager {
 
   /**
    * メンバーを雑談開始時に招集する対象から削除する
-   * @param {string} memberId メンバーID
-   * @param {string} memberName メンバー名
+   * @param {Member} member 対象メンバー
    */
-  async removeTargetMember(memberId: string, memberName: string): Promise<void> {
-    const member = new Member(memberId, memberName)
-
+  async removeTargetMember(member: Member): Promise<void> {
     const hasBeenAdded = await this.hasBeenAdded(member)
     if (!hasBeenAdded) {
       throw new NotFoundMemberError('Member have not joined')
@@ -67,6 +61,13 @@ export class ChatMemberManager {
    */
   async getTargetMembers(): Promise<Members> {
     return await this.targetMemberRepository.getAll()
+  }
+
+  /**
+   * 雑談中のメンバー一覧を取得する
+   */
+  async getChattingMembers(): Promise<Members> {
+    return await this.chattingMemberRepository.getAll()
   }
 
   /**
@@ -95,19 +96,32 @@ export class ChatMemberManager {
 
     // 取得されたメンバーを履歴に記録する
     await this.convenedMemberRepository.add(pickedMembers)
-    // 取得されたメンバーを雑談中のメンバーとして記録する
-    await this.chattingMemberRepository.add(pickedMembers)
 
     return pickedMembers
   }
 
   /**
-   * 雑談中のメンバーを取得し、雑談中という記録を消した上で返却する
+   * 対象のメンバーを雑談中の状態に設定する
+   * @param {Members} members 雑談中の状態に設定したいメンバー
    */
-  async suckUpChattingMembers(): Promise<Members> {
-    const members = await this.chattingMemberRepository.getAll()
+  async changeMembersStatusToChatting(members: Members): Promise<void> {
+    await this.chattingMemberRepository.add(members)
+  }
+
+  /**
+   * 対象のメンバーを雑談中の状態から外す
+   * @param {Members} members 雑談中の状態から外したいメンバー
+   */
+  async changeMembersStatusToUnChatting(members: Members): Promise<void> {
     await this.chattingMemberRepository.remove(members)
-    return members
+  }
+
+  /**
+   * 雑談中の状態に設定されているメンバー全ての雑談中の状態を外す
+   */
+  async releaseChattingStatusFromMembers(): Promise<void> {
+    const chattingMembers = await this.getChattingMembers()
+    await this.changeMembersStatusToUnChatting(chattingMembers)
   }
 
   private async hasBeenAdded(member: Member): Promise<boolean> {

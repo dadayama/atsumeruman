@@ -1,6 +1,6 @@
 import { https, pubsub } from 'firebase-functions'
 import * as config from './config'
-import { app as slackApp, receiver } from './utils/slack'
+import { app as slackApp, receiver } from './dependencies/slack'
 import { ChatController } from './controllers'
 
 const chatController = new ChatController()

@@ -1,6 +1,6 @@
 import { Container } from 'inversify'
 import admin from 'firebase-admin'
-import { app as slackApp } from '../utils/slack'
+import { app as slackApp } from '../dependencies/slack'
 import { TYPES } from './types'
 import {
   TargetMemberRepository,

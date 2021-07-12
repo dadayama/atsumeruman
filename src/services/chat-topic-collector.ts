@@ -2,7 +2,7 @@ import { injectable } from 'inversify'
 import 'reflect-metadata'
 import { Topic } from '../entities'
 import { WordRepository, SeriousWordRepository, FoolishWordRepository } from '../repositories'
-import { di } from '../utils'
+import * as di from '../di'
 
 /**
  * 雑談のネタを取り扱う

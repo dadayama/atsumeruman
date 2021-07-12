@@ -1,6 +1,6 @@
 import { Container } from 'inversify'
 import admin from 'firebase-admin'
-import { app as slackApp } from '../slack'
+import { app as slackApp } from '../utils/slack'
 import { TYPES } from './types'
 import {
   TargetMemberRepository,
@@ -13,7 +13,7 @@ import {
   FoolishWordRepository,
   WikipediaWordRepository,
   UnCyclopediaWordRepository,
-} from '../../repositories'
+} from '../repositories'
 import {
   MemberManager,
   ChatMemberManager,
@@ -21,7 +21,7 @@ import {
   ChatTopicCollector,
   Notifier,
   SlackNotifier,
-} from '../../services'
+} from '../services'
 
 admin.initializeApp()
 const fireStoreClient = admin.firestore()

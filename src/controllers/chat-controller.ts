@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { di } from '../utils'
+import * as di from '../di'
 import {
   MemberManager,
   DuplicatedMemberError,

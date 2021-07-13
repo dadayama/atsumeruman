@@ -1,6 +1,6 @@
 import { injectable } from 'inversify'
 import 'reflect-metadata'
-import { Topic } from '../entities'
+import { Topic } from '../vo'
 import { WordRepository, SeriousWordRepository, FoolishWordRepository } from '../repositories'
 import * as di from '../di'
 

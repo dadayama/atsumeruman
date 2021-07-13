@@ -1,5 +1,5 @@
 import { MediaWikiAPI } from '../api'
-import { Word } from '../entities'
+import { Word } from '../vo'
 import { WordRepository, WordRepositoryHandleError } from './word-repository'
 
 export class MediaWikiWordRepository implements WordRepository {

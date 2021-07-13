@@ -1,4 +1,4 @@
-import { Word } from '../entities'
+import { Word } from '../vo'
 
 export class WordRepositoryHandleError extends Error {}
 

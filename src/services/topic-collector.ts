@@ -1,4 +1,4 @@
-import { Topic } from '../entities'
+import { Topic } from '../vo'
 
 export type TopicCollector = {
   collectTopicRandomly(): Promise<Topic>

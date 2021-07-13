@@ -1,7 +1,7 @@
 import { injectable } from 'inversify'
 import 'reflect-metadata'
 import { Topic } from '../vo'
-import { WordRepository, SeriousWordRepository, FoolishWordRepository } from '../repositories'
+import { TopicRepository, SeriousWordRepository, FoolishWordRepository } from '../repositories'
 import * as di from '../di'
 
 /**
@@ -26,11 +26,10 @@ export class ChatTopicCollector {
    */
   async collectTopicRandomly(): Promise<Topic> {
     const repository = this.pickWordRepositoryRandomly()
-    const word = await repository.getRandomly()
-    return new Topic(word.value, word.descriptionUrl)
+    return await repository.getRandomly()
   }
 
-  private pickWordRepositoryRandomly(): WordRepository {
+  private pickWordRepositoryRandomly(): TopicRepository {
     const repositories = [this.seriousWordRepository, this.foolishWordRepository]
     const index = Math.floor(Math.random() * repositories.length)
     return repositories[index]

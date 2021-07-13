@@ -8,7 +8,7 @@ import {
   Notifier,
   NotifierHandleError,
 } from '../services'
-import { MemberRepositoryHandleError, WordRepositoryHandleError } from '../repositories'
+import { MemberRepositoryHandleError, TopicRepositoryHandleError } from '../repositories'
 import { Member } from '../entities'
 
 export class ChatController {
@@ -131,7 +131,7 @@ export class ChatController {
     } catch (e) {
       console.warn(e)
 
-      if (e instanceof WordRepositoryHandleError) {
+      if (e instanceof TopicRepositoryHandleError) {
         this.notifier.notify(notificationDestination, 'ﾄﾋﾟｯｸ ﾉ ｼｭﾄｸ ﾆ ｼｯﾊﾟｲ :innocent:')
       } else {
         this.notifier.notify(notificationDestination, 'ﾓﾝﾀﾞｲ ｶﾞ ﾊｯｾｲ :ladybug:')

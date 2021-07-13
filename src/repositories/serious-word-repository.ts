@@ -1,3 +1,3 @@
-import { WordRepository } from './word-repository'
+import { TopicRepository } from './topic-repository'
 
-export type SeriousWordRepository = WordRepository
+export type SeriousWordRepository = TopicRepository

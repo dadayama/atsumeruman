@@ -1,16 +1,16 @@
 import { MediaWikiAPI } from '../api'
-import { Word } from '../vo'
-import { WordRepository, WordRepositoryHandleError } from './word-repository'
+import { Topic } from '../vo'
+import { TopicRepository, TopicRepositoryHandleError } from './topic-repository'
 
-export class MediaWikiWordRepository implements WordRepository {
+export class MediaWikiWordRepository implements TopicRepository {
   constructor(private readonly client: MediaWikiAPI) {}
 
-  async getRandomly(): Promise<Word> {
+  async getRandomly(): Promise<Topic> {
     try {
       const res = await this.client.fetchRandomPage()
 
       if (res.status >= 400) {
-        throw new WordRepositoryHandleError('Failed to get the random word.')
+        throw new TopicRepositoryHandleError('Failed to get the random word.')
       }
 
       const {
@@ -19,9 +19,11 @@ export class MediaWikiWordRepository implements WordRepository {
       const pageId = pageIds[0]
       const page = pages[pageId]
 
-      return new Word(page.title, page.fullurl)
+      return new Topic(page.title, page.fullurl)
     } catch (e) {
-      throw new WordRepositoryHandleError(e?.message || 'An error occurred when fetching the data.')
+      throw new TopicRepositoryHandleError(
+        e?.message || 'An error occurred when fetching the data.'
+      )
     }
   }
 }

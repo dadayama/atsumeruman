@@ -1,5 +1,7 @@
 import { Topic } from '../vo'
 
 export type TopicCollector = {
-  collectTopicRandomly(): Promise<Topic>
+  collectRandomly(): Promise<Topic>
+  collectWordRandomly(): Promise<Topic>
+  collectTrendRandomly(): Promise<Topic>
 }

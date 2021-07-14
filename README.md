@@ -88,6 +88,7 @@ $ npm run deploy
      - `/atsumeruman-join`
      - `/atsumeruman-leave`
      - `/atsumeruman-list`
+     - `/atsumeruman-topic`
 
 ## Usage
 
@@ -95,4 +96,5 @@ $ npm run deploy
    - `/atsumeruman-join`: Will be randomly notified when the chat starts.
    - `/atsumeruman-leave`: Will no longer be notified when the chat starts.
    - `/atsumeruman-list`: Displays the list of members to be notified.
+   - `/atsumeruman-topic ${'word' | 'trend'}`: Provide a chat topic randomly.
 2. Wait for a notification on Slack to start chatting.

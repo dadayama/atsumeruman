@@ -10,6 +10,7 @@ import {
 } from '../services'
 import { MemberRepositoryHandleError, TopicRepositoryHandleError } from '../repositories'
 import { Member } from '../entities'
+import { Topic } from '../vo'
 
 export class ChatController {
   private readonly memberManager: MemberManager
@@ -109,20 +110,34 @@ export class ChatController {
   }
 
   /**
-   * 雑談ネタを提供する
+   * 雑談ネタをランダムに提供する
    * @param {string} memberId
    * @param {string} memberName
    * @param {string} notificationDestination 通知先
+   * @param {string} type トピック種別
    */
   async provideTopicRandomly(
     memberId: string,
     memberName: string,
-    notificationDestination: string
+    notificationDestination: string,
+    type?: string
   ): Promise<void> {
     const member = new Member(memberId, memberName)
 
     try {
-      const topic = await this.topicCollector.collectTopicRandomly()
+      let topic: Topic
+
+      switch (type) {
+        case 'word':
+          topic = await this.topicCollector.collectWordRandomly()
+          break
+        case 'trend':
+          topic = await this.topicCollector.collectTrendRandomly()
+          break
+        default:
+          topic = await this.topicCollector.collectRandomly()
+      }
+
       this.notifier.notify(
         notificationDestination,
         `「<${topic.descriptionUrl}|*${topic.title}*>」\nｦ ﾂｶｯﾃ ﾊﾅｼ ｦ ﾓﾘｱｹﾞﾖｳ :raised_hands:`,

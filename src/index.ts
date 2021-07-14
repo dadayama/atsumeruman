@@ -1,7 +1,8 @@
 import { https, pubsub } from 'firebase-functions'
 import * as config from './config'
-import { app as slackApp, receiver } from './dependencies/slack'
+import { app as slackApp, receiver } from './dependencies'
 import { ChatController } from './controllers'
+import { TwitterAPI } from './api'
 
 const chatController = new ChatController()
 
@@ -28,9 +29,12 @@ slackApp.command('/atsumeruman-list', async ({ command: { channel_id: channelId 
 
 slackApp.command(
   '/atsumeruman-topic',
-  async ({ command: { user_id: memberId, user_name: memberName, channel_id: channelId }, ack }) => {
+  async ({
+    command: { user_id: memberId, user_name: memberName, channel_id: channelId, text: type },
+    ack,
+  }) => {
     ack()
-    chatController.provideTopicRandomly(memberId, memberName, channelId)
+    chatController.provideTopicRandomly(memberId, memberName, channelId, type)
   }
 )
 

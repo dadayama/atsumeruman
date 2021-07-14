@@ -13,13 +13,13 @@ export class SlackNotifier implements Notifier {
   private readonly client: WebClient
 
   constructor(args: Args) {
-    if ('token' in args) {
+    if ('client' in args) {
+      this.client = args.client
+    } else {
       const { token, logLevel } = args
       this.client = new WebClient(token, {
         logLevel: logLevel || LogLevel.DEBUG,
       })
-    } else {
-      this.client = args.client
     }
   }
 

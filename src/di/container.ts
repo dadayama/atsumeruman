@@ -1,7 +1,8 @@
 import { Container } from 'inversify'
 import admin from 'firebase-admin'
-import { app as slackApp } from '../dependencies/slack'
 import { TYPES } from './types'
+import { app as slackApp, twitter } from '../dependencies'
+import { TwitterAPI } from '../api'
 import {
   TargetMemberRepository,
   HistoryMemberRepository,
@@ -13,6 +14,8 @@ import {
   FoolishWordRepository,
   WikipediaWordRepository,
   UnCyclopediaWordRepository,
+  TrendRepository,
+  TwitterTrendRepository,
 } from '../repositories'
 import {
   MemberManager,
@@ -38,6 +41,9 @@ container
   .toConstantValue(new FireStoreChattingMemberRepository(fireStoreClient))
 container.bind<SeriousWordRepository>(TYPES.SeriousWordRepository).to(WikipediaWordRepository)
 container.bind<FoolishWordRepository>(TYPES.FoolishWordRepository).to(UnCyclopediaWordRepository)
+container
+  .bind<TrendRepository>(TYPES.TrendRepository)
+  .toConstantValue(new TwitterTrendRepository(new TwitterAPI({ api: twitter })))
 container.bind<MemberManager>(TYPES.MemberManager).to(ChatMemberManager)
 container.bind<TopicCollector>(TYPES.TopicCollector).to(ChatTopicCollector)
 container.bind<Notifier>(TYPES.Notifier).toConstantValue(

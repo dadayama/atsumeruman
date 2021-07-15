@@ -24,8 +24,21 @@ $ npm install -g firebase-tools
 ### Slack (1)
 
 1. Access the [Slack apps page](https://api.slack.com/apps) and create a bot user.
-2. Get the **Client Secret**, **Signing Secret**, and **Bot User OAuth Token**
+2. Get the authentication information shown below.
+   - Client Secret
+   - Signing Secret
+   - Bot User OAuth Token
+
 3. Invite the bot user to the target channel.
+
+### Twitter
+
+1. Create a Twitter application on the developer page.
+2. Get the authentication information shown below.
+   - Consumer key
+   - Consumer secret
+   - Access token key
+   - Access token secret
 
 ### Firebase
 
@@ -63,7 +76,15 @@ $ vi .runtimeconfig.json
 			"bot_token": "Token of Slack bot",
 			"target_channel": "Some target Slack channel ID"
 		}
-	}
+	},
+  "api": {
+    "twitter": {
+      "consumer_key": "API key of Twitter application",
+      "consumer_secret": "API secret of Twitter application",
+      "access_token_key": "Access token key of Twitter application",
+      "access_token_secret": "Access token secret of Twitter application"
+    }
+  }
 }
 ```
 

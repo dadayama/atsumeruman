@@ -171,7 +171,7 @@ export class ChatController {
       const members = await this.memberManager.pickTargetMembersRandomly(numberOfTargetMember)
       if (members.count === 0) return
 
-      const message = `ｻﾞﾂﾀﾞﾝ ﾉ ｼﾞｶﾝ ﾀﾞﾖ\nｱﾂﾏﾚｰ :clap:\n${chatUrl}`
+      const message = `It's time to have a littile chat.\nLet's get together :clap:\n${chatUrl}`
       await this.notifier.notify(notificationDestination, message, members)
 
       await this.memberManager.changeMembersStatusToChatting(members)
@@ -179,11 +179,11 @@ export class ChatController {
       console.warn(e)
 
       if (e instanceof MemberRepositoryHandleError) {
-        this.notifier.notify(notificationDestination, 'ﾒﾝﾊﾞｰ ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ :innocent:')
+        this.notifier.notify(notificationDestination, 'Failed to get/update member data :innocent:')
       } else if (e instanceof NotifierHandleError) {
-        this.notifier.notify(notificationDestination, 'ﾂｳﾁ ｻｰﾋﾞｽ ﾄﾉ ｾﾂｿﾞｸ ﾆ ｼｯﾊﾟｲ :innocent:')
+        this.notifier.notify(notificationDestination, 'Failed to connect notification service :innocent:')
       } else {
-        this.notifier.notify(notificationDestination, 'ﾓﾝﾀﾞｲ ｶﾞ ﾊｯｾｲ :ladybug:')
+        this.notifier.notify(notificationDestination, 'Some problems occured :ladybug:')
       }
     }
   }
@@ -197,7 +197,7 @@ export class ChatController {
       const members = await this.memberManager.getChattingMembers()
       if (members.count === 0) return
 
-      const message = 'ｻﾞﾂﾀﾞﾝ ｼｭｳﾘｮｳ ﾉ ｼﾞｶﾝ ﾀﾞﾖ :pray:'
+      const message = "It's time to finish chatting :pray:"
       await this.notifier.notify(notificationDestination, message, members)
 
       await this.memberManager.changeMembersStatusToUnChatting(members)
@@ -205,11 +205,11 @@ export class ChatController {
       console.warn(e)
 
       if (e instanceof MemberRepositoryHandleError) {
-        this.notifier.notify(notificationDestination, 'ﾒﾝﾊﾞｰ ﾃﾞｰﾀ ﾉ ｼｭﾄｸ･ｺｳｼﾝ ﾆ ｼｯﾊﾟｲ :innocent:')
+        this.notifier.notify(notificationDestination, 'Failed to get/update member data :innocent:')
       } else if (e instanceof NotifierHandleError) {
-        this.notifier.notify(notificationDestination, 'ﾂｳﾁ ｻｰﾋﾞｽ ﾄﾉ ｾﾂｿﾞｸ ﾆ ｼｯﾊﾟｲ :innocent:')
+        this.notifier.notify(notificationDestination, 'Failed to connect notification service :innocent:')
       } else {
-        this.notifier.notify(notificationDestination, 'ﾓﾝﾀﾞｲ ｶﾞ ﾊｯｾｲ :ladybug:')
+        this.notifier.notify(notificationDestination, 'Some problems occured :ladybug:')
       }
     }
   }

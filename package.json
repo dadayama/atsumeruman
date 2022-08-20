@@ -36,7 +36,7 @@
     "firebase-functions": "^3.14.1",
     "inversify": "^5.1.1",
     "just-safe-get": "^2.1.2",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.6.7",
     "reflect-metadata": "^0.1.13",
     "twitter": "^1.7.1"
   },

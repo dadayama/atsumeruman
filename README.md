@@ -1,4 +1,4 @@
-# atsumeruman
+# hangar-flight
 
 This is a Bot that runs on Slack and randomly convenes from the participating members to create a place for chatting.
 
@@ -25,6 +25,7 @@ $ npm install -g firebase-tools
 
 1. Access the [Slack apps page](https://api.slack.com/apps) and create a bot user.
 2. Get the authentication information shown below.
+
    - Client Secret
    - Signing Secret
    - Bot User OAuth Token
@@ -106,16 +107,16 @@ $ npm run deploy
 2. Set the slash commands.
    - Request URL: Firebase 'Command' function URL (e.g. `https://us-central1-${Project ID}.cloudfunctions.net/command`)
    - Commands:
-     - `/atsumeruman-join`
-     - `/atsumeruman-leave`
-     - `/atsumeruman-list`
-     - `/atsumeruman-topic`
+     - `/hangar-flight-join`
+     - `/hangar-flight-leave`
+     - `/hangar-flight-list`
+     - `/hangar-flight-topic`
 
 ## Usage
 
 1. Type the slash command.
-   - `/atsumeruman-join`: Will be randomly notified when the chat starts.
-   - `/atsumeruman-leave`: Will no longer be notified when the chat starts.
-   - `/atsumeruman-list`: Displays the list of members to be notified.
-   - `/atsumeruman-topic ${'word' | 'trend'}`: Provide a chat topic randomly.
+   - `/hangar-flight-join`: Will be randomly notified when the chat starts.
+   - `/hangar-flight-leave`: Will no longer be notified when the chat starts.
+   - `/hangar-flight-list`: Displays the list of members to be notified.
+   - `/hangar-flight-topic ${'word' | 'trend'}`: Provide a chat topic randomly.
 2. Wait for a notification on Slack to start chatting.

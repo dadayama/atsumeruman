@@ -1,15 +1,15 @@
 {
-  "name": "atumeruman",
+  "name": "hangar-flight",
   "version": "1.0.0",
   "private": true,
   "description": "",
-  "homepage": "https://github.com/dadayama/atumeruman#readme",
+  "homepage": "https://github.com/dadayama/hangar-flight#readme",
   "bugs": {
-    "url": "https://github.com/dadayama/atumeruman/issues"
+    "url": "https://github.com/dadayama/hangar-flight/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/dadayama/atumeruman.git"
+    "url": "git+ssh://git@github.com/dadayama/hangar-flight.git"
   },
   "author": "dadayama",
   "main": "lib/index.js",

@@ -6,7 +6,7 @@ import { ChatController } from './controllers'
 const chatController = new ChatController()
 
 slackApp.command(
-  '/atsumeruman-join',
+  '/hangar-flight-join',
   async ({ command: { user_id: memberId, user_name: memberName, channel_id: channelId }, ack }) => {
     ack()
     await chatController.addTargetMember(memberId, memberName, channelId)
@@ -14,20 +14,20 @@ slackApp.command(
 )
 
 slackApp.command(
-  '/atsumeruman-leave',
+  '/hangar-flight-leave',
   async ({ command: { user_id: memberId, user_name: memberName, channel_id: channelId }, ack }) => {
     ack()
     await chatController.removeTargetMember(memberId, memberName, channelId)
   }
 )
 
-slackApp.command('/atsumeruman-list', async ({ command: { channel_id: channelId }, ack }) => {
+slackApp.command('/hangar-flight-list', async ({ command: { channel_id: channelId }, ack }) => {
   ack()
   await chatController.listTargetMembers(channelId)
 })
 
 slackApp.command(
-  '/atsumeruman-topic',
+  '/hangar-flight-topic',
   async ({
     command: { user_id: memberId, user_name: memberName, channel_id: channelId, text: type },
     ack,

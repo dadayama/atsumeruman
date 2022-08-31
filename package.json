@@ -1,15 +1,15 @@
 {
-  "name": "hangar-flight",
+  "name": "pibot",
   "version": "1.0.0",
   "private": true,
   "description": "",
-  "homepage": "https://github.com/dadayama/hangar-flight#readme",
+  "homepage": "https://github.com/dadayama/pibot#readme",
   "bugs": {
-    "url": "https://github.com/dadayama/hangar-flight/issues"
+    "url": "https://github.com/dadayama/pibot/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/dadayama/hangar-flight.git"
+    "url": "git+ssh://git@github.com/dadayama/pibot.git"
   },
   "author": "dadayama",
   "main": "lib/index.js",

@@ -4,22 +4,18 @@ import {
   MemberManager,
   DuplicatedMemberError,
   NotFoundMemberError,
-  TopicCollector,
   Notifier,
   NotifierHandleError,
 } from '../services'
-import { MemberRepositoryHandleError, TopicRepositoryHandleError } from '../repositories'
+import { MemberRepositoryHandleError } from '../repositories'
 import { Member } from '../entities'
-import { Topic } from '../vo'
 
 export class ChatController {
   private readonly memberManager: MemberManager
-  private readonly topicCollector: TopicCollector
   private readonly notifier: Notifier
 
   constructor() {
     this.memberManager = di.container.get<MemberManager>(di.TYPES.MemberManager)
-    this.topicCollector = di.container.get<TopicCollector>(di.TYPES.TopicCollector)
     this.notifier = di.container.get<Notifier>(di.TYPES.Notifier)
   }
 
@@ -110,51 +106,6 @@ export class ChatController {
   }
 
   /**
-   * 雑談ネタをランダムに提供する
-   * @param {string} memberId
-   * @param {string} memberName
-   * @param {string} notificationDestination 通知先
-   * @param {string} type トピック種別
-   */
-  async provideTopicRandomly(
-    memberId: string,
-    memberName: string,
-    notificationDestination: string,
-    type?: string
-  ): Promise<void> {
-    const member = new Member(memberId, memberName)
-
-    try {
-      let topic: Topic
-
-      switch (type) {
-        case 'word':
-          topic = await this.topicCollector.collectWordRandomly()
-          break
-        case 'trend':
-          topic = await this.topicCollector.collectTrendRandomly()
-          break
-        default:
-          topic = await this.topicCollector.collectRandomly()
-      }
-
-      this.notifier.notify(
-        notificationDestination,
-        `「<${topic.descriptionUrl}|*${topic.title}*>」\nｦ ﾂｶｯﾃ ﾊﾅｼ ｦ ﾓﾘｱｹﾞﾖｳ :raised_hands:`,
-        member
-      )
-    } catch (e) {
-      console.warn(e)
-
-      if (e instanceof TopicRepositoryHandleError) {
-        this.notifier.notify(notificationDestination, 'ﾄﾋﾟｯｸ ﾉ ｼｭﾄｸ ﾆ ｼｯﾊﾟｲ :innocent:')
-      } else {
-        this.notifier.notify(notificationDestination, 'ﾓﾝﾀﾞｲ ｶﾞ ﾊｯｾｲ :ladybug:')
-      }
-    }
-  }
-
-  /**
    * 雑談を開始する
    * @param {string} notificationDestination 通知先
    * @param {number} numberOfTargetMember 雑談に招集する人数
@@ -181,7 +132,10 @@ export class ChatController {
       if (e instanceof MemberRepositoryHandleError) {
         this.notifier.notify(notificationDestination, 'Failed to get/update member data :innocent:')
       } else if (e instanceof NotifierHandleError) {
-        this.notifier.notify(notificationDestination, 'Failed to connect notification service :innocent:')
+        this.notifier.notify(
+          notificationDestination,
+          'Failed to connect notification service :innocent:'
+        )
       } else {
         this.notifier.notify(notificationDestination, 'Some problems occured :ladybug:')
       }
@@ -207,7 +161,10 @@ export class ChatController {
       if (e instanceof MemberRepositoryHandleError) {
         this.notifier.notify(notificationDestination, 'Failed to get/update member data :innocent:')
       } else if (e instanceof NotifierHandleError) {
-        this.notifier.notify(notificationDestination, 'Failed to connect notification service :innocent:')
+        this.notifier.notify(
+          notificationDestination,
+          'Failed to connect notification service :innocent:'
+        )
       } else {
         this.notifier.notify(notificationDestination, 'Some problems occured :ladybug:')
       }

@@ -23,7 +23,3 @@ export const FUNCTIONS_CRON_SCHEDULE_END = getConfigValue(
 export const SLACK_SIGNING_SECRET = getConfigValue('chat.slack.signing_secret')
 export const SLACK_BOT_TOKEN = getConfigValue('chat.slack.bot_token')
 export const SLACK_TARGET_CHANNEL = getConfigValue('chat.slack.target_channel')
-export const TWITTER_CONSUMER_KEY = getConfigValue('api.twitter.consumer_key')
-export const TWITTER_CONSUMER_SECRET = getConfigValue('api.twitter.consumer_secret')
-export const TWITTER_ACCESS_TOKEN_KEY = getConfigValue('api.twitter.access_token_key')
-export const TWITTER_ACCESS_TOKEN_SECRET = getConfigValue('api.twitter.access_token_secret')

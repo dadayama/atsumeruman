@@ -26,17 +26,6 @@ slackApp.command('/hangar-flight-list', async ({ command: { channel_id: channelI
   await chatController.listTargetMembers(channelId)
 })
 
-slackApp.command(
-  '/hangar-flight-topic',
-  async ({
-    command: { user_id: memberId, user_name: memberName, channel_id: channelId, text: type },
-    ack,
-  }) => {
-    ack()
-    chatController.provideTopicRandomly(memberId, memberName, channelId, type)
-  }
-)
-
 export const command = https.onRequest(receiver.app)
 
 export const start = pubsub

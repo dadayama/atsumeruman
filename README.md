@@ -32,15 +32,6 @@ $ npm install -g firebase-tools
 
 3. Invite the bot user to the target channel.
 
-### Twitter
-
-1. Create a Twitter application on the developer page.
-2. Get the authentication information shown below.
-   - Consumer key
-   - Consumer secret
-   - Access token key
-   - Access token secret
-
 ### Firebase
 
 1. Access the [Firebase console](https://console.firebase.google.com/) and create a project.
@@ -77,15 +68,7 @@ $ vi .runtimeconfig.json
 			"bot_token": "Token of Slack bot",
 			"target_channel": "Some target Slack channel ID"
 		}
-	},
-  "api": {
-    "twitter": {
-      "consumer_key": "API key of Twitter application",
-      "consumer_secret": "API secret of Twitter application",
-      "access_token_key": "Access token key of Twitter application",
-      "access_token_secret": "Access token secret of Twitter application"
-    }
-  }
+	}
 }
 ```
 
@@ -110,7 +93,6 @@ $ npm run deploy
      - `/hangar-flight-join`
      - `/hangar-flight-leave`
      - `/hangar-flight-list`
-     - `/hangar-flight-topic`
 
 ## Usage
 
@@ -118,5 +100,4 @@ $ npm run deploy
    - `/hangar-flight-join`: Will be randomly notified when the chat starts.
    - `/hangar-flight-leave`: Will no longer be notified when the chat starts.
    - `/hangar-flight-list`: Displays the list of members to be notified.
-   - `/hangar-flight-topic ${'word' | 'trend'}`: Provide a chat topic randomly.
 2. Wait for a notification on Slack to start chatting.

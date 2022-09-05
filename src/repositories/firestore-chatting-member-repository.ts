@@ -5,6 +5,6 @@ import { FireStoreMemberRepository } from './firestore-member-repository'
 @injectable()
 export class FireStoreChattingMemberRepository extends FireStoreMemberRepository {
   constructor(client?: firestore.Firestore) {
-    super('chattingMembers', client)
+    super('ChattingMembers', client)
   }
 }

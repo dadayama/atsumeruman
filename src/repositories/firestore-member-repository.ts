@@ -40,7 +40,8 @@ export class FireStoreMemberRepository implements MemberRepository {
       })
       return new Members(args)
     } catch (e) {
-      throw new MemberRepositoryHandleError(e?.message || 'Failed to get the member data.')
+      const message = e instanceof Error ? e.message : 'Failed to get the members data.'
+      throw new MemberRepositoryHandleError(message)
     }
   }
 
@@ -54,7 +55,8 @@ export class FireStoreMemberRepository implements MemberRepository {
       const data = doc.data()
       return data ? new Member(memberId, data.name) : undefined
     } catch (e) {
-      throw new MemberRepositoryHandleError(e?.message || 'Failed to find the member data.')
+      const message = e instanceof Error ? e.message : 'Failed to find the member data.'
+      throw new MemberRepositoryHandleError(message)
     }
   }
 
@@ -73,7 +75,8 @@ export class FireStoreMemberRepository implements MemberRepository {
 
       await batch.commit()
     } catch (e) {
-      throw new MemberRepositoryHandleError(e?.message || 'Failed to add the members data.')
+      const message = e instanceof Error ? e.message : 'Failed to add the member data.'
+      throw new MemberRepositoryHandleError(message)
     }
   }
 
@@ -92,7 +95,8 @@ export class FireStoreMemberRepository implements MemberRepository {
 
       await batch.commit()
     } catch (e) {
-      throw new MemberRepositoryHandleError(e?.message || 'Failed to remove the members data.')
+      const message = e instanceof Error ? e.message : 'Failed to remove the member data.'
+      throw new MemberRepositoryHandleError(message)
     }
   }
 }

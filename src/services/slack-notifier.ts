@@ -46,7 +46,8 @@ export class SlackNotifier implements Notifier {
         mrkdwn: true,
       })
     } catch (e) {
-      throw new NotifierHandleError(e?.message || 'Failed to notification to Slack.')
+      const message = e instanceof Error ? e.message : 'Failed to notification to Slack.'
+      throw new NotifierHandleError(message)
     }
   }
 
@@ -65,7 +66,8 @@ export class SlackNotifier implements Notifier {
         mrkdwn: true,
       })
     } catch (e) {
-      throw new NotifierHandleError(e?.message || 'Failed to notification to Slack.')
+      const message = e instanceof Error ? e.message : 'Failed to notification to Slack.'
+      throw new NotifierHandleError(message)
     }
   }
 }

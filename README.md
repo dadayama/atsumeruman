@@ -1,4 +1,4 @@
-# pibot
+# pibo
 
 This is a Bot that runs on Slack and randomly convenes from the participating members to create a place for chatting.
 

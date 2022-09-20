@@ -1,15 +1,15 @@
 {
-  "name": "pibot",
+  "name": "pibo",
   "version": "1.0.0",
   "private": true,
   "description": "",
-  "homepage": "https://github.com/dadayama/pibot#readme",
+  "homepage": "https://github.com/dadayama/pibo#readme",
   "bugs": {
-    "url": "https://github.com/dadayama/pibot/issues"
+    "url": "https://github.com/dadayama/pibo/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/dadayama/pibot.git"
+    "url": "git+ssh://git@github.com/dadayama/pibo.git"
   },
   "author": "dadayama",
   "main": "lib/index.js",

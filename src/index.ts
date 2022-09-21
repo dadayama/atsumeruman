@@ -6,25 +6,29 @@ import { ChatController } from './controllers'
 const chatController = new ChatController()
 
 slackApp.command(
-  '/hangar-flight-join',
-  async ({ command: { user_id: memberId, user_name: memberName, channel_id: channelId }, ack }) => {
-    ack()
-    await chatController.addTargetMember(memberId, memberName, channelId)
+  '/hangar-flight',
+  async ({
+    command: { text: subCommand, user_id: memberId, user_name: memberName, channel_id: channelId },
+    ack,
+    respond,
+  }) => {
+    await ack()
+
+    switch (subCommand) {
+      case 'join':
+        await chatController.addTargetMember(memberId, memberName, channelId)
+        break
+      case 'leave':
+        await chatController.removeTargetMember(memberId, memberName, channelId)
+        break
+      case 'list':
+        await chatController.listTargetMembers(channelId)
+        break
+      default:
+        await respond("This command isn't supported.")
+    }
   }
 )
-
-slackApp.command(
-  '/hangar-flight-leave',
-  async ({ command: { user_id: memberId, user_name: memberName, channel_id: channelId }, ack }) => {
-    ack()
-    await chatController.removeTargetMember(memberId, memberName, channelId)
-  }
-)
-
-slackApp.command('/hangar-flight-list', async ({ command: { channel_id: channelId }, ack }) => {
-  ack()
-  await chatController.listTargetMembers(channelId)
-})
 
 export const command = https.onRequest(receiver.app)
 

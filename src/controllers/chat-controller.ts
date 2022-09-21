@@ -122,7 +122,7 @@ export class ChatController {
       const members = await this.memberManager.pickTargetMembersRandomly(numberOfTargetMember)
       if (members.count === 0) return
 
-      const message = `It's time to have a littile chat.\nLet's get together :clap:\n${chatUrl}`
+      const message = `It's time to have a little chat.\nLet's get together :clap:\n${chatUrl}`
       await this.notifier.notify(notificationDestination, message, members)
 
       await this.memberManager.changeMembersStatusToChatting(members)

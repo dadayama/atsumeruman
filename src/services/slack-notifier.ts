@@ -18,7 +18,7 @@ export class SlackNotifier implements Notifier {
     } else {
       const { token, logLevel } = args
       this.client = new WebClient(token, {
-        logLevel: logLevel || LogLevel.DEBUG,
+        logLevel: logLevel || LogLevel.ERROR,
       })
     }
   }

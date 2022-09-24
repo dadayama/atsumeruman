@@ -90,14 +90,12 @@ $ npm run deploy
 2. Set the slash commands.
    - Request URL: Firebase 'Command' function URL (e.g. `https://us-central1-${Project ID}.cloudfunctions.net/command`)
    - Commands:
-     - `/hangar-flight-join`
-     - `/hangar-flight-leave`
-     - `/hangar-flight-list`
+     - `/hangar-flight`
 
 ## Usage
 
 1. Type the slash command.
-   - `/hangar-flight-join`: Will be randomly notified when the chat starts.
-   - `/hangar-flight-leave`: Will no longer be notified when the chat starts.
-   - `/hangar-flight-list`: Displays the list of members to be notified.
+   - `/hangar-flight join`: Will be randomly notified when the chat starts.
+   - `/hangar-flight leave`: Will no longer be notified when the chat starts.
+   - `/hangar-flight list`: Displays the list of members to be notified.
 2. Wait for a notification on Slack to start chatting.

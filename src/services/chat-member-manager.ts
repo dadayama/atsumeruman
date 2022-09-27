@@ -1,4 +1,4 @@
-import { injectable } from 'inversify'
+import { injectable, inject } from 'inversify'
 import 'reflect-metadata'
 import * as di from '../di'
 import { Member, Members } from '../entities'
@@ -7,28 +7,21 @@ import {
   HistoryMemberRepository,
   ChattingMemberRepository,
 } from '../repositories'
-import { DuplicatedMemberError, NotFoundMemberError } from './member-manager'
+import { MemberManager, DuplicatedMemberError, NotFoundMemberError } from './member-manager'
 
 /**
  * 雑談のメンバーを管理する
  */
 @injectable()
-export class ChatMemberManager {
-  private readonly targetMemberRepository: TargetMemberRepository
-  private readonly historyMemberRepository: HistoryMemberRepository
-  private readonly chattingMemberRepository: ChattingMemberRepository
-
-  constructor() {
-    this.targetMemberRepository = di.container.get<TargetMemberRepository>(
-      di.TYPES.TargetMemberRepository
-    )
-    this.historyMemberRepository = di.container.get<HistoryMemberRepository>(
-      di.TYPES.HistoryMemberRepository
-    )
-    this.chattingMemberRepository = di.container.get<ChattingMemberRepository>(
-      di.TYPES.ChattingMemberRepository
-    )
-  }
+export class ChatMemberManager implements MemberManager {
+  constructor(
+    @inject(di.TYPES.TargetMemberRepository)
+    private readonly targetMemberRepository: TargetMemberRepository,
+    @inject(di.TYPES.HistoryMemberRepository)
+    private readonly historyMemberRepository: HistoryMemberRepository,
+    @inject(di.TYPES.ChattingMemberRepository)
+    private readonly chattingMemberRepository: ChattingMemberRepository
+  ) {}
 
   /**
    * メンバーを雑談開始時に招集する対象に追加する

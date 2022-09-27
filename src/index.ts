@@ -1,9 +1,14 @@
+import 'reflect-metadata'
 import { https, pubsub } from 'firebase-functions'
+import * as di from './di'
 import * as config from './config'
 import { app as slackApp, receiver } from './dependencies'
 import { ChatController } from './controllers'
+import { MemberManager, Notifier } from './services'
 
-const chatController = new ChatController()
+const memberManager = di.container.get<MemberManager>(di.TYPES.MemberManager)
+const notifier = di.container.get<Notifier>(di.TYPES.Notifier)
+const chatController = new ChatController(memberManager, notifier)
 
 slackApp.command(
   '/hangar-flight',

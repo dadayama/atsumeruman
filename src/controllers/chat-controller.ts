@@ -1,5 +1,3 @@
-import 'reflect-metadata'
-import * as di from '../di'
 import {
   MemberManager,
   DuplicatedMemberError,
@@ -11,13 +9,7 @@ import { MemberRepositoryHandleError } from '../repositories'
 import { Member } from '../entities'
 
 export class ChatController {
-  private readonly memberManager: MemberManager
-  private readonly notifier: Notifier
-
-  constructor() {
-    this.memberManager = di.container.get<MemberManager>(di.TYPES.MemberManager)
-    this.notifier = di.container.get<Notifier>(di.TYPES.Notifier)
-  }
+  constructor(private readonly memberManager: MemberManager, private readonly notifier: Notifier) {}
 
   /**
    * メンバーを雑談の招集対象にする

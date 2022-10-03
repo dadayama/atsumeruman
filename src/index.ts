@@ -1,14 +1,25 @@
-import 'reflect-metadata'
 import { https, pubsub } from 'firebase-functions'
-import * as di from './di'
+import admin from 'firebase-admin'
 import * as config from './config'
 import { app as slackApp, receiver } from './dependencies'
 import { ChatController } from './controllers'
-import { MemberManager, Notifier } from './services'
+import {
+  FireStoreTargetMemberRepository,
+  FireStoreHistoryMemberRepository,
+  FireStoreChattingMemberRepository,
+} from './repositories'
+import { ChatMemberManager, SlackNotifier } from './services'
 
-const memberManager = di.container.get<MemberManager>(di.TYPES.MemberManager)
-const notifier = di.container.get<Notifier>(di.TYPES.Notifier)
-const chatController = new ChatController(memberManager, notifier)
+admin.initializeApp()
+const fireStoreClient = admin.firestore()
+
+const chatMemberManager = new ChatMemberManager(
+  new FireStoreTargetMemberRepository(fireStoreClient),
+  new FireStoreHistoryMemberRepository(fireStoreClient),
+  new FireStoreChattingMemberRepository(fireStoreClient)
+)
+const slackNotifier = new SlackNotifier({ client: slackApp.client })
+const chatController = new ChatController(chatMemberManager, slackNotifier)
 
 slackApp.command(
   '/hangar-flight',

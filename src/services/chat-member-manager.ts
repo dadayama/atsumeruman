@@ -1,6 +1,3 @@
-import { injectable, inject } from 'inversify'
-import 'reflect-metadata'
-import * as di from '../di'
 import { Member, Members } from '../entities'
 import {
   TargetMemberRepository,
@@ -12,14 +9,10 @@ import { MemberManager, DuplicatedMemberError, NotFoundMemberError } from './mem
 /**
  * 雑談のメンバーを管理する
  */
-@injectable()
 export class ChatMemberManager implements MemberManager {
   constructor(
-    @inject(di.TYPES.TargetMemberRepository)
     private readonly targetMemberRepository: TargetMemberRepository,
-    @inject(di.TYPES.HistoryMemberRepository)
     private readonly historyMemberRepository: HistoryMemberRepository,
-    @inject(di.TYPES.ChattingMemberRepository)
     private readonly chattingMemberRepository: ChattingMemberRepository
   ) {}
 

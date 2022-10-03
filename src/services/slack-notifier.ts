@@ -1,4 +1,3 @@
-import { injectable } from 'inversify'
 import { WebClient, LogLevel } from '@slack/web-api'
 import { Notifier, NotifierHandleError } from './notifier'
 import { Member, Members } from '../entities'
@@ -8,7 +7,6 @@ type Args = { token: string; logLevel?: LogLevel } | { client: WebClient }
 /**
  * Slack通知を取り扱う
  */
-@injectable()
 export class SlackNotifier implements Notifier {
   private readonly client: WebClient
 

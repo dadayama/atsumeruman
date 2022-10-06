@@ -41,7 +41,7 @@ describe('ChatMemberManager', () => {
       member = new Member('id', 'name')
     })
 
-    it('call TargetMemberRepository.add() if a member is unregistered', async () => {
+    it('perpetuate member as a subject to chat if a member is unregistered', async () => {
       ;(mockTargetMemberRepository.findById as jest.Mock).mockReturnValue(undefined)
 
       await chatMemberManager.addTargetMember(member)
@@ -78,7 +78,7 @@ describe('ChatMemberManager', () => {
       member = new Member('id', 'name')
     })
 
-    it('call TargetMemberRepository.remove() if a member is registered', async () => {
+    it('remove persistent member if a member is unregistered', async () => {
       ;(mockTargetMemberRepository.findById as jest.Mock).mockReturnValue(member)
 
       await chatMemberManager.removeTargetMember(member)

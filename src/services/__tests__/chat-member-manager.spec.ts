@@ -145,11 +145,21 @@ describe('ChatMemberManager', () => {
       expect([...pickedMembers]).toEqual(expect.not.arrayContaining([...historyMembers]))
     })
 
-    it.todo('record the picked members in the chat history')
+    it('remove members from chat history if the specified number of people exceeds the number of members not chatting', async () => {
+      ;(mockTargetMemberRepository.getAll as jest.Mock).mockReturnValue(targetMembers)
+      ;(mockHistoryMemberRepository.getAll as jest.Mock).mockReturnValue(historyMembers)
 
-    it.todo(
-      'delete chat history if the specified number of people exceeds the number of members not chatting'
-    )
+      await chatMemberManager.pickTargetMembersRandomly(6)
+      expect(mockHistoryMemberRepository.remove).toBeCalledWith(historyMembers)
+    })
+
+    it('save the picked members in the chat history', async () => {
+      ;(mockTargetMemberRepository.getAll as jest.Mock).mockReturnValue(targetMembers)
+      ;(mockHistoryMemberRepository.getAll as jest.Mock).mockReturnValue(emptyHistoryMembers)
+
+      await chatMemberManager.pickTargetMembersRandomly(5)
+      expect(mockHistoryMemberRepository.add).toBeCalledWith(targetMembers)
+    })
 
     afterEach(() => {
       ;(mockTargetMemberRepository.getAll as jest.Mock).mockClear()

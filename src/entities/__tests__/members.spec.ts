@@ -8,7 +8,7 @@ describe('Members', () => {
   })
 
   describe('add()', () => {
-    it('メンバーを追加できること', () => {
+    it('add a member', () => {
       expect(members.count).toStrictEqual(0)
 
       const targetMember = new Member('id', 'name')
@@ -18,7 +18,7 @@ describe('Members', () => {
       expect([..._members]).toStrictEqual([targetMember])
     })
 
-    it('メンバーを複数同時に追加できること', () => {
+    it('add multiple members', () => {
       expect(members.count).toStrictEqual(0)
 
       const targetMembers = new Members([
@@ -42,7 +42,7 @@ describe('Members', () => {
       members = members.add(new Members([targetMember1, targetMember2, targetMember3]))
     })
 
-    it('メンバーを削除できること', () => {
+    it('remove a member', () => {
       expect(members.count).toStrictEqual(3)
 
       const _members = members.remove(targetMember1)
@@ -51,7 +51,7 @@ describe('Members', () => {
       expect([..._members]).toStrictEqual([targetMember2, targetMember3])
     })
 
-    it('メンバーを複数同時に削除できること', () => {
+    it('remove multiple members', () => {
       expect(members.count).toStrictEqual(3)
 
       const _members = members.remove(new Members([targetMember1, targetMember2]))
@@ -70,7 +70,7 @@ describe('Members', () => {
       members = members.add(new Members([targetMember1, targetMember2, targetMember3]))
     })
 
-    it('指定数のメンバーをランダムに抽出できること', () => {
+    it('randomly extract a specified number of members', () => {
       const _members = members.pickRandomly(2)
 
       expect(_members.count).toStrictEqual(2)
@@ -93,21 +93,21 @@ describe('Members', () => {
       supplyMembers = new Members([supplyMember1, supplyMember2, supplyMember3])
     })
 
-    it('指定数を満たすメンバーが存在する場合、その中からランダムに指定数分のメンバーを抽出できること', () => {
+    it('randomly pick a specified number of members from among the members that meet the specified number if they exist', () => {
       const _members = members.pickRandomlyToFill(2, supplyMembers)
 
       expect(_members.count).toStrictEqual(2)
       expect([...members]).toEqual(expect.arrayContaining([..._members]))
     })
 
-    it('指定数を満たすメンバーが存在しない場合、追加メンバーを加えた上でランダムに指定数分のメンバーを抽出できること', () => {
+    it('randomly pick a specified number of members, plus additional members, if the specified number of members do not exist', () => {
       const _members = members.pickRandomlyToFill(5, supplyMembers)
 
       expect(_members.count).toStrictEqual(5)
       expect([...members, ...supplyMembers]).toEqual(expect.arrayContaining([..._members]))
     })
 
-    it('指定数とメンバー数が同じである場合、同じメンバー一覧が返却されること', () => {
+    it('return the same members if the number of members is the same as the number specified', () => {
       const _members = members.pickRandomlyToFill(3, supplyMembers)
 
       expect(_members).toEqual(members)

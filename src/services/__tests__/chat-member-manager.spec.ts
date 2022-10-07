@@ -24,19 +24,21 @@ const fakeMemberRepository: MemberRepository = {
 
 describe('ChatMemberManager', () => {
   let chatMemberManager: MemberManager
+  let mockTargetMemberRepository: TargetMemberRepository
+
+  beforeEach(() => {
+    mockTargetMemberRepository = new MockMemberRepository()
+  })
 
   describe('addTargetMember()', () => {
-    let mockTargetMemberRepository: TargetMemberRepository
     let member: Member
 
     beforeEach(() => {
-      mockTargetMemberRepository = new MockMemberRepository()
       chatMemberManager = new ChatMemberManager(
         mockTargetMemberRepository,
         fakeMemberRepository,
         fakeMemberRepository
       )
-
       member = new Member('id', 'name')
     })
 
@@ -63,7 +65,6 @@ describe('ChatMemberManager', () => {
   })
 
   describe('removeTargetMember()', () => {
-    let mockTargetMemberRepository: TargetMemberRepository
     let member: Member
 
     beforeEach(() => {
@@ -73,7 +74,6 @@ describe('ChatMemberManager', () => {
         fakeMemberRepository,
         fakeMemberRepository
       )
-
       member = new Member('id', 'name')
     })
 
@@ -100,7 +100,6 @@ describe('ChatMemberManager', () => {
   })
 
   describe('pickTargetMembersRandomly()', () => {
-    let mockTargetMemberRepository: TargetMemberRepository
     let mockHistoryMemberRepository: HistoryMemberRepository
     let targetMembers: Members
     let emptyHistoryMembers: Members

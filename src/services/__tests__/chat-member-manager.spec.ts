@@ -4,8 +4,7 @@ import {
   TargetMemberRepository,
   HistoryMemberRepository,
 } from '../../repositories'
-import { MemberManager, DuplicatedMemberError, NotFoundMemberError } from '../member-manager'
-import { ChatMemberManager } from '../chat-member-manager'
+import { MemberManager, ChatMemberManager, DuplicatedMemberError, NotFoundMemberError } from '..'
 
 const MockMemberRepository: jest.Mock<MemberRepository> = jest.fn().mockImplementation(() => {
   return {

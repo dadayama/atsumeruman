@@ -35,6 +35,7 @@ describe('ChatController', () => {
 
   describe('start()', () => {
     let members: Members
+    let emptyMembers: Members
 
     beforeEach(() => {
       members = new Members([
@@ -42,6 +43,7 @@ describe('ChatController', () => {
         new Member('2', 'name'),
         new Member('3', 'name'),
       ])
+      emptyMembers = new Members()
     })
 
     it('end the chat if it is not finished', async () => {
@@ -49,6 +51,14 @@ describe('ChatController', () => {
 
       await chatController.start('destination', 3, 'url')
       expect(mockMemberManager.releaseChattingStatusFromMembers).toBeCalledTimes(1)
+    })
+
+    it('do nothing if there are no members', async () => {
+      ;(mockMemberManager.pickTargetMembersRandomly as jest.Mock).mockReturnValue(emptyMembers)
+
+      await chatController.start('destination', 3, 'url')
+      expect(mockNotifier.notify).toBeCalledTimes(0)
+      expect(mockMemberManager.changeMembersStatusToChatting).toBeCalledTimes(0)
     })
 
     it('notify the start of a chat', async () => {
@@ -62,11 +72,51 @@ describe('ChatController', () => {
       )
     })
 
-    it('change the status of a member called to a chat to Chatting status', async () => {
+    it('change the status of a member called to a chat to chatting status', async () => {
       ;(mockMemberManager.pickTargetMembersRandomly as jest.Mock).mockReturnValue(members)
 
       await chatController.start('destination', 3, 'url')
-      expect(mockMemberManager.changeMembersStatusToChatting).toHaveBeenCalledWith(members)
+      expect(mockMemberManager.changeMembersStatusToChatting).toBeCalledWith(members)
+    })
+  })
+
+  describe('end()', () => {
+    let members: Members
+    let emptyMembers: Members
+
+    beforeEach(() => {
+      members = new Members([
+        new Member('1', 'name'),
+        new Member('2', 'name'),
+        new Member('3', 'name'),
+      ])
+      emptyMembers = new Members()
+    })
+
+    it('do nothing if there are no chatting members', async () => {
+      ;(mockMemberManager.getChattingMembers as jest.Mock).mockReturnValue(emptyMembers)
+
+      await chatController.end('destination')
+      expect(mockNotifier.notify).toBeCalledTimes(0)
+      expect(mockMemberManager.changeMembersStatusToUnChatting).toBeCalledTimes(0)
+    })
+
+    it('notify the end of a chat', async () => {
+      ;(mockMemberManager.getChattingMembers as jest.Mock).mockReturnValue(members)
+
+      await chatController.end('destination')
+      expect(mockNotifier.notify).toBeCalledWith(
+        'destination',
+        "It's time to finish chatting :pray:",
+        members
+      )
+    })
+
+    it('change the status of a member called to a chat to un chatting status', async () => {
+      ;(mockMemberManager.getChattingMembers as jest.Mock).mockReturnValue(members)
+
+      await chatController.end('destination')
+      expect(mockMemberManager.changeMembersStatusToUnChatting).toBeCalledWith(members)
     })
   })
 })

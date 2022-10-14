@@ -8,7 +8,8 @@ export type MemberManager = {
   removeTargetMember(member: Member): Promise<void>
   getTargetMembers(): Promise<Members>
   getChattingMembers(): Promise<Members>
-  pickTargetMembersRandomly(numberOfTargetMember: number): Promise<Members>
+  getHistoryMembers(): Promise<Members>
+  pickTargetMembersRandomly(numberOfTargetMember: number, historyMembers: Members): Promise<Members>
   changeMembersStatusToChatting(members: Members): Promise<void>
   changeMembersStatusToUnChatting(members: Members): Promise<void>
   releaseChattingStatusFromMembers(): Promise<void>

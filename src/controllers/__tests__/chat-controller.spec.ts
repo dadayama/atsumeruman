@@ -8,6 +8,7 @@ const MockMemberManager: jest.Mock<MemberManager> = jest.fn().mockImplementation
     removeTargetMember: jest.fn(),
     getTargetMembers: jest.fn(),
     getChattingMembers: jest.fn(),
+    getHistoryMembers: jest.fn(),
     pickTargetMembersRandomly: jest.fn(),
     changeMembersStatusToChatting: jest.fn(),
     changeMembersStatusToUnChatting: jest.fn(),

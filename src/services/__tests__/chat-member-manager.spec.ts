@@ -127,27 +127,24 @@ describe('ChatMemberManager', () => {
 
     it('pick a specified number of members from all members if members does not exist in the chat history', async () => {
       ;(mockTargetMemberRepository.getAll as jest.Mock).mockReturnValue(targetMembers)
-      ;(mockHistoryMemberRepository.getAll as jest.Mock).mockReturnValue(emptyHistoryMembers)
 
-      const pickedMembers = await chatMemberManager.pickTargetMembersRandomly(3)
+      const pickedMembers = await chatMemberManager.pickTargetMembersRandomly(3, historyMembers)
       expect(pickedMembers.count).toStrictEqual(3)
       expect([...targetMembers]).toEqual(expect.arrayContaining([...pickedMembers]))
     })
 
     it('pick a specified number of members not included in the chat history if a member exists in the chat history', async () => {
       ;(mockTargetMemberRepository.getAll as jest.Mock).mockReturnValue(targetMembers)
-      ;(mockHistoryMemberRepository.getAll as jest.Mock).mockReturnValue(historyMembers)
 
-      const pickedMembers = await chatMemberManager.pickTargetMembersRandomly(3)
+      const pickedMembers = await chatMemberManager.pickTargetMembersRandomly(3, historyMembers)
       expect(pickedMembers.count).toStrictEqual(3)
       expect([...pickedMembers]).toEqual(expect.not.arrayContaining([...historyMembers]))
     })
 
     it('remove members from chat history if the specified number of people exceeds the number of members not chatting', async () => {
       ;(mockTargetMemberRepository.getAll as jest.Mock).mockReturnValue(targetMembers)
-      ;(mockHistoryMemberRepository.getAll as jest.Mock).mockReturnValue(historyMembers)
 
-      await chatMemberManager.pickTargetMembersRandomly(6)
+      await chatMemberManager.pickTargetMembersRandomly(6, historyMembers)
       expect(mockHistoryMemberRepository.remove).toBeCalledWith(historyMembers)
     })
 
@@ -155,7 +152,7 @@ describe('ChatMemberManager', () => {
       ;(mockTargetMemberRepository.getAll as jest.Mock).mockReturnValue(targetMembers)
       ;(mockHistoryMemberRepository.getAll as jest.Mock).mockReturnValue(emptyHistoryMembers)
 
-      await chatMemberManager.pickTargetMembersRandomly(5)
+      await chatMemberManager.pickTargetMembersRandomly(5, emptyHistoryMembers)
       expect(mockHistoryMemberRepository.add).toBeCalledWith(targetMembers)
     })
 

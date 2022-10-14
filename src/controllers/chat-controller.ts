@@ -111,7 +111,11 @@ export class ChatController {
     try {
       await this.memberManager.releaseChattingStatusFromMembers()
 
-      const members = await this.memberManager.pickTargetMembersRandomly(numberOfTargetMember)
+      const historyMembers = await this.memberManager.getHistoryMembers()
+      const members = await this.memberManager.pickTargetMembersRandomly(
+        numberOfTargetMember,
+        historyMembers
+      )
       if (members.count === 0) return
 
       const message = `It's time to have a little chat.\nLet's get together :clap:\n${chatUrl}`

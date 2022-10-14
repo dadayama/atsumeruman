@@ -78,22 +78,18 @@ export class ChatMemberManager implements MemberManager {
     // 現在のメンバー一覧から招集履歴に存在しないメンバーを抽出する
     const membersNotInHistory = targetMembers.remove(historyMembers)
 
-    if (membersNotInHistory.count < numberOfTargetMember) {
-      // 取得人数が対象メンバー（招集履歴に存在しないメンバー）の数を上回る場合、記録を全削除しリセットする
-      // ※ 記録が埋まってしまうため
-      await this.historyMemberRepository.remove(historyMembers)
-    }
-
     // 取得人数を（可能な限り）満たすメンバー一覧をランダムに取得する
     const pickedMembers = await membersNotInHistory.pickRandomlyToFill(
       numberOfTargetMember,
       targetMembers
     )
 
-    // 取得されたメンバーを履歴に記録する
-    await this.historyMemberRepository.add(pickedMembers)
-
     return pickedMembers
+  }
+
+  async flushHistory(): Promise<void> {
+    const historyMembers = await this.getHistoryMembers()
+    await this.historyMemberRepository.remove(historyMembers)
   }
 
   /**

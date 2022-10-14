@@ -116,7 +116,18 @@ export class ChatController {
         numberOfTargetMember,
         historyMembers
       )
+
       if (members.count === 0) return
+
+      if (members.count < numberOfTargetMember) {
+        await this.memberManager.flushHistory()
+
+        const diff = numberOfTargetMember - members.count
+        const additionalMembers = await this.memberManager.pickTargetMembersRandomly(diff, members)
+        members.add(additionalMembers)
+
+        await this.memberManager.changeMembersStatusToChatting(members)
+      }
 
       const message = `It's time to have a little chat.\nLet's get together :clap:\n${chatUrl}`
       await this.notifier.notify(notificationDestination, message, members)

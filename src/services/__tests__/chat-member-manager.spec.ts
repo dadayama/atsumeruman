@@ -1,9 +1,5 @@
 import { Member, Members } from '../../entities'
-import {
-  MemberRepository,
-  TargetMemberRepository,
-  HistoryMemberRepository,
-} from '../../repositories'
+import { MemberRepository, TargetMemberRepository } from '../../repositories'
 import { MemberManager, ChatMemberManager, DuplicatedMemberError, NotFoundMemberError } from '..'
 
 const MockMemberRepository: jest.Mock<MemberRepository> = jest.fn().mockImplementation(() => {
@@ -100,17 +96,14 @@ describe('ChatMemberManager', () => {
   })
 
   describe('pickTargetMembersRandomly()', () => {
-    let mockHistoryMemberRepository: HistoryMemberRepository
     let targetMembers: Members
-    let emptyHistoryMembers: Members
     let historyMembers: Members
 
     beforeEach(() => {
       mockTargetMemberRepository = new MockMemberRepository()
-      mockHistoryMemberRepository = new MockMemberRepository()
       chatMemberManager = new ChatMemberManager(
         mockTargetMemberRepository,
-        mockHistoryMemberRepository,
+        fakeMemberRepository,
         fakeMemberRepository
       )
 
@@ -121,7 +114,6 @@ describe('ChatMemberManager', () => {
         new Member('4', 'name'),
         new Member('5', 'name'),
       ])
-      emptyHistoryMembers = new Members()
       historyMembers = new Members([new Member('1', 'name'), new Member('2', 'name')])
     })
 
@@ -141,24 +133,8 @@ describe('ChatMemberManager', () => {
       expect([...pickedMembers]).toEqual(expect.not.arrayContaining([...historyMembers]))
     })
 
-    it('remove members from chat history if the specified number of people exceeds the number of members not chatting', async () => {
-      ;(mockTargetMemberRepository.getAll as jest.Mock).mockReturnValue(targetMembers)
-
-      await chatMemberManager.pickTargetMembersRandomly(6, historyMembers)
-      expect(mockHistoryMemberRepository.remove).toBeCalledWith(historyMembers)
-    })
-
-    it('save the picked members in the chat history', async () => {
-      ;(mockTargetMemberRepository.getAll as jest.Mock).mockReturnValue(targetMembers)
-      ;(mockHistoryMemberRepository.getAll as jest.Mock).mockReturnValue(emptyHistoryMembers)
-
-      await chatMemberManager.pickTargetMembersRandomly(5, emptyHistoryMembers)
-      expect(mockHistoryMemberRepository.add).toBeCalledWith(targetMembers)
-    })
-
     afterEach(() => {
       ;(mockTargetMemberRepository.getAll as jest.Mock).mockClear()
-      ;(mockHistoryMemberRepository.getAll as jest.Mock).mockClear()
     })
   })
 })

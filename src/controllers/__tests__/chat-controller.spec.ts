@@ -10,6 +10,7 @@ const MockMemberManager: jest.Mock<MemberManager> = jest.fn().mockImplementation
     getChattingMembers: jest.fn(),
     getHistoryMembers: jest.fn(),
     pickTargetMembersRandomly: jest.fn(),
+    flushHistory: jest.fn(),
     changeMembersStatusToChatting: jest.fn(),
     changeMembersStatusToUnChatting: jest.fn(),
     releaseChattingStatusFromMembers: jest.fn(),
@@ -60,6 +61,18 @@ describe('ChatController', () => {
       await chatController.start('destination', 3, 'url')
       expect(mockNotifier.notify).toBeCalledTimes(0)
       expect(mockMemberManager.changeMembersStatusToChatting).toBeCalledTimes(0)
+    })
+
+    it('delete the history and reacquire the member to make up for the missing member if members are missing', async () => {
+      ;(mockMemberManager.pickTargetMembersRandomly as jest.Mock).mockReturnValue(members)
+
+      const numberOfTargetMember = 4
+      const diff = numberOfTargetMember - members.count
+      await chatController.start('destination', numberOfTargetMember, 'url')
+
+      expect(mockMemberManager.flushHistory).toBeCalledTimes(1)
+      expect(mockMemberManager.pickTargetMembersRandomly).toHaveBeenNthCalledWith(2, diff, members)
+      expect(mockMemberManager.changeMembersStatusToChatting).toBeCalledWith(members)
     })
 
     it('notify the start of a chat', async () => {
@@ -119,5 +132,12 @@ describe('ChatController', () => {
       await chatController.end('destination')
       expect(mockMemberManager.changeMembersStatusToUnChatting).toBeCalledWith(members)
     })
+  })
+
+  afterEach(() => {
+    ;(mockMemberManager.pickTargetMembersRandomly as jest.Mock).mockClear()
+    ;(mockMemberManager.flushHistory as jest.Mock).mockClear()
+    ;(mockMemberManager.changeMembersStatusToChatting as jest.Mock).mockClear()
+    ;(mockNotifier.notify as jest.Mock).mockClear()
   })
 })

@@ -10,6 +10,7 @@ const MockMemberManager: jest.Mock<MemberManager> = jest.fn().mockImplementation
     getChattingMembers: jest.fn(),
     getHistoryMembers: jest.fn(),
     pickTargetMembersRandomly: jest.fn(),
+    addHistory: jest.fn(),
     flushHistory: jest.fn(),
     changeMembersStatusToChatting: jest.fn(),
     changeMembersStatusToUnChatting: jest.fn(),
@@ -72,7 +73,6 @@ describe('ChatController', () => {
 
       expect(mockMemberManager.flushHistory).toBeCalledTimes(1)
       expect(mockMemberManager.pickTargetMembersRandomly).toHaveBeenNthCalledWith(2, diff, members)
-      expect(mockMemberManager.changeMembersStatusToChatting).toBeCalledWith(members)
     })
 
     it('notify the start of a chat', async () => {
@@ -84,6 +84,13 @@ describe('ChatController', () => {
         "It's time to have a little chat.\nLet's get together :clap:\nurl",
         members
       )
+    })
+
+    it('add the members to the chat history', async () => {
+      ;(mockMemberManager.pickTargetMembersRandomly as jest.Mock).mockReturnValue(members)
+
+      await chatController.start('destination', 3, 'url')
+      expect(mockMemberManager.addHistory).toBeCalledWith(members)
     })
 
     it('change the status of a member called to a chat to chatting status', async () => {

@@ -125,14 +125,13 @@ export class ChatController {
         const diff = numberOfTargetMember - members.count
         const additionalMembers = await this.memberManager.pickTargetMembersRandomly(diff, members)
         members.add(additionalMembers)
-
-        await this.memberManager.changeMembersStatusToChatting(members)
       }
+
+      await this.memberManager.addHistory(members)
+      await this.memberManager.changeMembersStatusToChatting(members)
 
       const message = `It's time to have a little chat.\nLet's get together :clap:\n${chatUrl}`
       await this.notifier.notify(notificationDestination, message, members)
-
-      await this.memberManager.changeMembersStatusToChatting(members)
     } catch (e) {
       console.warn(e)
 

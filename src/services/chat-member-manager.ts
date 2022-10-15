@@ -87,6 +87,10 @@ export class ChatMemberManager implements MemberManager {
     return pickedMembers
   }
 
+  async addHistory(members: Members): Promise<void> {
+    await this.historyMemberRepository.add(members)
+  }
+
   async flushHistory(): Promise<void> {
     const historyMembers = await this.getHistoryMembers()
     await this.historyMemberRepository.remove(historyMembers)

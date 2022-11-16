@@ -39,7 +39,7 @@ export class MemberService implements IMemberService {
 
   async getRandomly(numberOfMember: number, excluded: Members = new Members()): Promise<Members> {
     const members = await this.memberRepository.getAll()
-    return members.remove(excluded).pickRandomlyToFill(numberOfMember, members)
+    return await members.remove(excluded).pickRandomlyToFill(numberOfMember, members)
   }
 
   private async hasBeenAdded(member: Member): Promise<boolean> {

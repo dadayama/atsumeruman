@@ -1,66 +1,69 @@
 import { Member, Members } from '../../entities'
-import { MemberRepository, TargetMemberRepository } from '../../repositories'
+import {
+  MemberRepository as IMemberRepository,
+  TargetMemberRepository as MemberRepository,
+} from '../../repositories'
 import { IMemberService, MemberService } from '..'
 
-const MockMemberRepository: jest.Mock<MemberRepository> = jest.fn().mockImplementation(() => {
+const MockMemberRepository: jest.Mock<IMemberRepository> = jest.fn().mockImplementation(() => {
   return {
     getAll: jest.fn(),
     findById: jest.fn(),
     add: jest.fn(),
     remove: jest.fn(),
-  } as MemberRepository
+  } as IMemberRepository
 })
 
 describe('MemberService', () => {
   let memberService: IMemberService
-  let mockTargetMemberRepository: TargetMemberRepository
+  let mockMemberRepository: MemberRepository
   let member: Member
 
   beforeEach(() => {
-    mockTargetMemberRepository = new MockMemberRepository()
-    memberService = new MemberService(mockTargetMemberRepository)
+    mockMemberRepository = new MockMemberRepository()
+    memberService = new MemberService(mockMemberRepository)
     member = new Member('id', 'name')
   })
 
   describe('add()', () => {
     it('perpetuate member as a subject to chat if a member is unregistered', async () => {
-      ;(mockTargetMemberRepository.findById as jest.Mock).mockReturnValue(undefined)
+      ;(mockMemberRepository.findById as jest.Mock).mockReturnValue(undefined)
 
       await memberService.add(member)
-      expect(mockTargetMemberRepository.add).toBeCalledWith(member)
+      expect(mockMemberRepository.add).toBeCalledWith(member)
     })
 
     it('throws error if a member was registered', async () => {
-      ;(mockTargetMemberRepository.findById as jest.Mock).mockReturnValue(member)
+      ;(mockMemberRepository.findById as jest.Mock).mockReturnValue(member)
 
       await expect(memberService.add(member)).rejects.toThrow()
-      expect(mockTargetMemberRepository.add).toBeCalledTimes(0)
+      expect(mockMemberRepository.add).toBeCalledTimes(0)
     })
 
     afterEach(() => {
-      ;(mockTargetMemberRepository.findById as jest.Mock).mockClear()
-      ;(mockTargetMemberRepository.add as jest.Mock).mockClear()
+      ;(mockMemberRepository.findById as jest.Mock).mockClear()
+      ;(mockMemberRepository.add as jest.Mock).mockClear()
     })
   })
 
   describe('remove()', () => {
     it('remove persistent member if a member is unregistered', async () => {
-      ;(mockTargetMemberRepository.findById as jest.Mock).mockReturnValue(member)
+      ;(mockMemberRepository.findById as jest.Mock).mockReturnValue(member)
 
       await memberService.remove(member)
-      expect(mockTargetMemberRepository.remove).toBeCalledWith(member)
+      expect(mockMemberRepository.remove).toBeCalledWith(member)
     })
 
     it('throws error if a member was unregistered', async () => {
-      ;(mockTargetMemberRepository.findById as jest.Mock).mockReturnValue(undefined)
+      ;(mockMemberRepository.findById as jest.Mock).mockReturnValue(undefined)
 
-      await expect(await memberService.remove(member)).rejects.toThrow()
-      expect(mockTargetMemberRepository.remove).toBeCalledTimes(0)
+      await expect(memberService.remove(member)).rejects.toThrow()
+      expect(mockMemberRepository.remove).toBeCalledTimes(0)
     })
 
     afterEach(() => {
-      ;(mockTargetMemberRepository.findById as jest.Mock).mockClear()
-      ;(mockTargetMemberRepository.remove as jest.Mock).mockClear()
+      ;(mockMemberRepository.findById as jest.Mock).mockClear()
+      ;(mockMemberRepository.remove as jest.Mock).mockClear()
     })
   })
 
@@ -69,8 +72,8 @@ describe('MemberService', () => {
     let historyMembers: Members
 
     beforeEach(() => {
-      mockTargetMemberRepository = new MockMemberRepository()
-      memberService = new MemberService(mockTargetMemberRepository)
+      mockMemberRepository = new MockMemberRepository()
+      memberService = new MemberService(mockMemberRepository)
 
       targetMembers = new Members([
         new Member('1', 'name'),
@@ -83,7 +86,7 @@ describe('MemberService', () => {
     })
 
     it('pick a specified number of members from all members if members does not exist in the chat history', async () => {
-      ;(mockTargetMemberRepository.getAll as jest.Mock).mockReturnValue(targetMembers)
+      ;(mockMemberRepository.getAll as jest.Mock).mockReturnValue(targetMembers)
 
       const pickedMembers = await memberService.getRandomly(3, historyMembers)
       expect(pickedMembers.count).toStrictEqual(3)
@@ -91,7 +94,7 @@ describe('MemberService', () => {
     })
 
     it('pick a specified number of members not included in the chat history if a member exists in the chat history', async () => {
-      ;(mockTargetMemberRepository.getAll as jest.Mock).mockReturnValue(targetMembers)
+      ;(mockMemberRepository.getAll as jest.Mock).mockReturnValue(targetMembers)
 
       const pickedMembers = await memberService.getRandomly(3, historyMembers)
       expect(pickedMembers.count).toStrictEqual(3)
@@ -99,7 +102,7 @@ describe('MemberService', () => {
     })
 
     afterEach(() => {
-      ;(mockTargetMemberRepository.getAll as jest.Mock).mockClear()
+      ;(mockMemberRepository.getAll as jest.Mock).mockClear()
     })
   })
 })

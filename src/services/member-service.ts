@@ -1,5 +1,5 @@
 import { Member, Members } from '../entities'
-import { TargetMemberRepository } from '../repositories'
+import { TargetMemberRepository as MemberRepository } from '../repositories'
 
 export class DuplicatedMemberError extends Error {}
 
@@ -13,25 +13,37 @@ export type IMemberService = {
 }
 
 export class MemberService implements IMemberService {
-  // @ts-ignore
-  constructor(private readonly repository: TargetMemberRepository) {}
+  constructor(private readonly memberRepository: MemberRepository) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async add(member: Member): Promise<void> {
-    return Promise.resolve()
+    const hasBeenAdded = await this.hasBeenAdded(member)
+    if (hasBeenAdded) {
+      throw new DuplicatedMemberError('Member have already joined.')
+    }
+
+    this.memberRepository.add(member)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async remove(member: Member): Promise<void> {
-    return Promise.resolve()
+    const hasBeenAdded = await this.hasBeenAdded(member)
+    if (!hasBeenAdded) {
+      throw new NotFoundMemberError('Member have not joined')
+    }
+
+    this.memberRepository.remove(member)
   }
 
   async getAll(): Promise<Members> {
-    return Promise.resolve(new Members([]))
+    return this.memberRepository.getAll()
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async getRandomly(numberOfMember: number, excluded?: Members | undefined): Promise<Members> {
-    return Promise.resolve(new Members([]))
+  async getRandomly(numberOfMember: number, excluded: Members = new Members()): Promise<Members> {
+    const members = await this.memberRepository.getAll()
+    return members.remove(excluded).pickRandomlyToFill(numberOfMember, members)
+  }
+
+  private async hasBeenAdded(member: Member): Promise<boolean> {
+    const _member = await this.memberRepository.findById(member.id)
+    return !!_member
   }
 }

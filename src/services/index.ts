@@ -1,4 +1,5 @@
 export { MemberManager, DuplicatedMemberError, NotFoundMemberError } from './member-manager'
 export { ChatMemberManager } from './chat-member-manager'
+export { IMemberService, MemberService } from './member-service'
 export { Notifier, NotifierHandleError } from './notifier'
 export { SlackNotifier } from './slack-notifier'

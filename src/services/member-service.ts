@@ -1,28 +1,37 @@
 import { Member, Members } from '../entities'
 import { TargetMemberRepository } from '../repositories'
 
-export interface MemberService {
+export class DuplicatedMemberError extends Error {}
+
+export class NotFoundMemberError extends Error {}
+
+export type IMemberService = {
   add(member: Member): Promise<void>
   remove(member: Member): Promise<void>
   getAll(): Promise<Members>
   getRandomly(numberOfMember: number, excluded?: Members): Promise<Members>
 }
 
-export class MemberService implements MemberService {
+export class MemberService implements IMemberService {
+  // @ts-ignore
   constructor(private readonly repository: TargetMemberRepository) {}
-  add(member: Member): Promise<void> {
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async add(member: Member): Promise<void> {
     return Promise.resolve()
   }
 
-  remove(member: Member): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async remove(member: Member): Promise<void> {
     return Promise.resolve()
   }
 
-  getAll(): Promise<Members> {
+  async getAll(): Promise<Members> {
     return Promise.resolve(new Members([]))
   }
 
-  selectRandomly(numberOfMember: number, excluded?: Members | undefined): Promise<Members> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async getRandomly(numberOfMember: number, excluded?: Members | undefined): Promise<Members> {
     return Promise.resolve(new Members([]))
   }
 }

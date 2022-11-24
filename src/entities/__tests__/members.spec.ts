@@ -7,6 +7,23 @@ describe('Members', () => {
     members = new Members()
   })
 
+  describe('create()', () => {
+    it('create Members from parameters', () => {
+      const members = Members.create([
+        { id: '1', name: 'foo' },
+        { id: '2', name: 'bar' },
+        { id: '3', name: 'baz' },
+      ])
+
+      expect(members.count).toStrictEqual(3)
+      expect([...members]).toStrictEqual([
+        new Member('1', 'foo'),
+        new Member('2', 'bar'),
+        new Member('3', 'baz'),
+      ])
+    })
+  })
+
   describe('add()', () => {
     it('add a member', () => {
       expect(members.count).toStrictEqual(0)

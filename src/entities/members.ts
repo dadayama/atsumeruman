@@ -1,10 +1,19 @@
 import { Member } from './member'
 
+export type CreateParams = Array<{
+  id: string
+  name: string
+}>
+
 export class Members {
   constructor(private readonly members: Member[] = []) {}
 
   *[Symbol.iterator](): Iterator<Member> {
     yield* this.members
+  }
+
+  static create(params: CreateParams): Members {
+    return new Members(params.map(({ id, name }) => new Member(id, name)))
   }
 
   get count(): number {
